@@ -1,6 +1,6 @@
-# SRS
+# Specification
 
-14 nov 2025
+## latest version: 14 nov 2025 
 
 # Halaman aplikasi:
 
@@ -37,6 +37,7 @@
 - Password
 - Nama lengkap
 - Alamat (text bebas)
+- Komunitas
 
 **Elements:**
 
@@ -44,6 +45,7 @@
 - Input password
 - Input nama lengkap
 - Textarea alamat
+- Select Komunitas
 - Button daftar
 - Div error message
 
@@ -53,7 +55,7 @@
 
 ## 3. Homepage (Feed Komunitas)
 
-**Alur:** User lihat daftar item yang dibagikan/dipinjamkan warga -> klik item untuk detail -> request jika perlu
+**Alur:** User lihat daftar item yang dibagikan/dipinjamkan warga **dalam satu komunitas** -> klik item untuk detail -> request jika perlu
 
 **Elements:**
 
@@ -196,6 +198,28 @@
 - `PATCH /user/requests/{id}` (approve/reject/cancel/returned)
 
 
+# Model
+## Data Flow Diagram
+```mermaid
+flowchart TD
+  COMMUNITIES[(COMMUNITIES)]
+  USERS[(USERS)]
+  ITEMS[(ITEMS)]
+  REQUESTS[(REQUESTS)]
+
+  COMMUNITIES -- "has (1..n)" --> USERS
+  USERS -- "owns (1..n)" --> ITEMS
+  USERS -- "makes (1..n)" --> REQUESTS
+  ITEMS -- "has (1..n)" --> REQUESTS
+
+  COMMUNITIES ---|"id, slug, name, description"| COMMUNITIES
+  USERS ---|"id, community_id, username, password_hash, name, address, created_at"| USERS
+  ITEMS ---|"id, name, description, qty, remaining_qty, unit, type, status, photo_url, thumbnail_url, owner_id, created_at, updated_at"| ITEMS
+  REQUESTS ---|"id, item_id, requester_id, requested_qty, date_start, date_end, status, created_at, updated_at"| REQUESTS
+```
+
+---
+
 # Development APIs only
 
 **Catatan:**
@@ -287,6 +311,7 @@ Content-Type: application/json
   "token_type": "Bearer",
   "expires_in": 3600,
   "user": {
+    "community_id": 1,
     "id": 1,
     "username": "jqr123",
     "name": "Jqwery Ddo",
@@ -352,7 +377,8 @@ Content-Type: application/json
 POST /auth/register
 Content-Type: application/json
 
-{
+{,
+  "community_id": 1
   "username": "jqr123",
   "password": "password123",
   "name": "Jqwery Ddo",
@@ -368,7 +394,8 @@ Content-Type: application/json
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ8...",
   "token_type": "Bearer",
-  "expires_in": 3600,
+  "excommunity_id": 1,
+    "pires_in": 3600,
   "user": {
     "id": 2,
     "username": "jqr123",
@@ -488,7 +515,8 @@ Authorization: Bearer {access_token}
 ```json
 401 Unauthorized
 {
-  "error": "Invalid or expired token"
+  **Item Filter:** Hanya menampilkan item dari komunitas yang sama dengan user
+- "error": "Invalid or expired token"
 }
 ```
 
