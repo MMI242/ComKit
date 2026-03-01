@@ -25,10 +25,10 @@ describe('Navigation Tests', () => {
         }
       }
     })
-    
+
     const registerLink = wrapper.find('a[href="/register"]')
     expect(registerLink.exists()).toBe(true)
-    expect(registerLink.text()).toContain('create a new account')
+    expect(registerLink.text()).toContain('Sign up now')
   })
 
   it('navigates to login from register page', async () => {
@@ -42,7 +42,7 @@ describe('Navigation Tests', () => {
         }
       }
     })
-    
+
     const loginLink = wrapper.find('a[href="/login"]')
     expect(loginLink.exists()).toBe(true)
     expect(loginLink.text()).toContain('sign in to your existing account')

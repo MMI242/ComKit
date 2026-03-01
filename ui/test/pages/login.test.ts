@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {DOMWrapper, mount} from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import Login from '../../app/pages/login.vue'
 
 // Mock navigateTo
@@ -26,27 +26,19 @@ describe('Login Page', () => {
       }
     })
 
-    expect(wrapper.find('h2').text()).toBe('Sign in to your account')
+    expect(wrapper.find('h2').text()).toBe('Welcome back')
     expect(wrapper.find('input#username').exists()).toBe(true)
     expect(wrapper.find('input#password').exists()).toBe(true)
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true)
-    expect(wrapper.find('input#remember-me').exists()).toBe(true)
+    expect(wrapper.find('input[type="checkbox"]').exists()).toBe(true)
   })
 
   it('has correct form labels and placeholders', () => {
-    const wrapper = mount(Login, {
-      global: {
-        stubs: {
-          'NuxtLink': {
-            template: '<a :href="to"><slot /></a>',
-            props: ['to']
-          }
-        }
-      }
-    })
+    const wrapper = mount(Login)
 
-    expect(wrapper.find('input#username').attributes('placeholder')).toBe('Enter your username')
-    expect(wrapper.find('input#password').attributes('placeholder')).toBe('Enter your password')
+    // Menyesuaikan dengan placeholder di layout baru
+    expect(wrapper.find('input#username').attributes('placeholder')).toBe('Enter username')
+    expect(wrapper.find('input#password').attributes('placeholder')).toBe('••••••••')
   })
 
   it('binds form data correctly', async () => {
@@ -65,7 +57,8 @@ describe('Login Page', () => {
     const vm = getVm(wrapper)
 
     expect(vm.form.rememberMe).toBe(false)
-    await (wrapper.find('input#remember-me') as any).setChecked(true)
+
+    await (wrapper.find('input[type="checkbox"]') as any).setChecked(true)
     expect(vm.form.rememberMe).toBe(true)
   })
 
@@ -73,7 +66,7 @@ describe('Login Page', () => {
     const wrapper = mount(Login)
     const vm = getVm(wrapper)
 
-    expect(wrapper.find('button[type="submit"]').text()).toBe('Sign in')
+    expect(wrapper.find('button[type="submit"]').text()).toBe('Sign in to account')
     expect(vm.loading).toBe(false)
   })
 
@@ -105,7 +98,6 @@ describe('Login Page', () => {
     await wrapper.find('input#password').setValue('wrong')
     await wrapper.find('form').trigger('submit.prevent')
 
-    // Tunggu async validation
     await new Promise(resolve => setTimeout(resolve, 1100))
 
     expect(vm.error).toBe('Invalid username or password')

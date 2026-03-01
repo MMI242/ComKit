@@ -1,102 +1,52 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+  <div class="min-h-screen flex flex-col md:flex-row font-sans">
+    <div class="hidden md:flex md:w-1/2 bg-indigo-600 p-12 flex-col justify-between text-white">
       <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Or
-          <NuxtLink to="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
-            create a new account
-          </NuxtLink>
-        </p>
+        <h1 class="text-4xl font-bold tracking-tight">ComKit</h1>
+        <p class="mt-4 text-indigo-100 text-lg">Platform berbagi komunitas untuk mempermudah hidup Anda.</p>
       </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="space-y-4">
-          <div>
-            <label for="username" class="form-label">Username</label>
-            <input
-              id="username"
-              v-model="form.username"
-              name="username"
-              type="text"
-              required
-              class="input-field"
-              placeholder="Enter your username"
-            />
-          </div>
+      <div>
+        <p class="text-sm text-indigo-200">&copy; 2026 ComKit Inc.</p>
+      </div>
+    </div>
 
-          <div>
-            <label for="password" class="form-label">Password</label>
-            <input
-              id="password"
-              v-model="form.password"
-              name="password"
-              type="password"
-              required
-              class="input-field"
-              placeholder="Enter your password"
-            />
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember-me"
-              v-model="form.rememberMe"
-              name="remember-me"
-              type="checkbox"
-              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-              Remember me
-            </label>
-          </div>
-
-          <div class="text-sm">
-            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
-              Forgot your password?
-            </a>
-          </div>
-        </div>
-
+    <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
+      <div class="w-full max-w-sm space-y-8">
         <div>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="btn-primary w-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ loading ? 'Signing in...' : 'Sign in' }}
-          </button>
+          <h2 class="text-3xl font-extrabold text-gray-900">Welcome back</h2>
+          <p class="mt-2 text-sm text-gray-600">
+            Don't have an account?
+            <NuxtLink to="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign up now
+            </NuxtLink>
+          </p>
         </div>
 
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg
-                class="h-5 w-5 text-red-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+        <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+          <div class="space-y-4">
+            <div>
+              <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+              <input id="username" v-model="form.username" type="text" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter username" />
             </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                {{ error }}
-              </h3>
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+              <input id="password" v-model="form.password" type="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="••••••••" />
             </div>
           </div>
-        </div>
-      </form>
+
+          <div class="flex items-center justify-between">
+            <label class="flex items-center text-sm text-gray-900">
+              <input v-model="form.rememberMe" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+              <span class="ml-2">Remember me</span>
+            </label>
+            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Forgot?</a>
+          </div>
+
+          <button type="submit" :disabled="loading" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+            {{ loading ? 'Signing in...' : 'Sign in to account' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>

@@ -21,7 +21,7 @@ describe('Basic Component Tests', () => {
     })
     
     expect(wrapper.exists()).toBe(true)
-    expect(wrapper.find('h2').text()).toBe('Sign in to your account')
+    expect(wrapper.find('h2').text()).toBe('Welcome back')
   })
 
   it('should find form elements', async () => {
