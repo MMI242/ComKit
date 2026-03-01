@@ -12,7 +12,7 @@ You can download the postman collection in this [postman link](https://www.postm
 If you want to create database, please run `python server-fastapi/migration.py`
 
 This command will create the SQLite database with all necessary tables including users, items, and requests. The database file will be created in the server-fastapi directory.
-Don't forget to setuup your `.env` too.
+Don't forget to setup your `.env` too.
 
 ## Fake Data Generation
 

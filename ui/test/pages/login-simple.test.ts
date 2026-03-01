@@ -1,15 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import Login from '../../app/pages/login.vue'
 
-// Mock navigateTo
-vi.mock('#app/composables', () => ({
-  navigateTo: vi.fn()
+// Mock useAuth composable
+const mockLogin = vi.fn()
+const mockIsLoading = ref(false)
+const mockError = ref('')
+
+vi.mock('../../composables/useAuth', () => ({
+  useAuth: () => ({
+    login: mockLogin,
+    isLoading: mockIsLoading,
+    error: mockError
+  })
 }))
 
 describe('Login Page - Simple Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockIsLoading.value = false
+    mockError.value = ''
   })
 
   const getVm = (wrapper: any) => wrapper.vm as any
@@ -46,42 +57,19 @@ describe('Login Page - Simple Tests', () => {
   })
 
   it('shows loading state', () => {
-    const wrapper = mount(Login, {
-      global: {
-        stubs: {
-          'NuxtLink': {
-            template: '<a :href="to"><slot /></a>',
-            props: ['to']
-          }
-        }
-      }
-    })
-
+    const wrapper = mount(Login)
     const button = wrapper.find('button[type="submit"]')
 
     expect(button.text()).toBe('Sign in to account')
-
-    const vm = getVm(wrapper)
-    expect(vm.loading).toBe(false)
   })
 
   it('displays error message when error exists', () => {
-    const wrapper = mount(Login, {
-      global: {
-        stubs: {
-          'NuxtLink': {
-            template: '<a :href="to"><slot /></a>',
-            props: ['to']
-          }
-        }
-      }
-    })
-
-    const vm = getVm(wrapper)
-    expect(vm.error).toBe('')
+    mockError.value = 'Test error'
+    const wrapper = mount(Login)
 
     const errorDiv = wrapper.find('.bg-red-50')
-    expect(errorDiv.exists()).toBe(false)
+    expect(errorDiv.exists()).toBe(true)
+    expect(errorDiv.text()).toContain('Test error')
   })
 
   it('does not display error when no error', () => {

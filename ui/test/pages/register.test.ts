@@ -1,15 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import Register from '../../app/pages/register.vue'
 
-// Mock navigateTo
-vi.mock('#app/composables', () => ({
-  navigateTo: vi.fn()
+// Mock navigateTo globally
+const mockNavigateTo = vi.fn()
+globalThis.navigateTo = mockNavigateTo
+
+// Mock useAuth composable
+const mockRegister = vi.fn()
+const mockIsLoading = ref(false)
+const mockError = ref('')
+
+vi.mock('../../composables/useAuth', () => ({
+  useAuth: () => ({
+    register: mockRegister,
+    isLoading: mockIsLoading,
+    error: mockError
+  })
 }))
 
 describe('Register Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockIsLoading.value = false
+    mockError.value = ''
   })
 
   const getVm = (wrapper: any) => wrapper.vm as any

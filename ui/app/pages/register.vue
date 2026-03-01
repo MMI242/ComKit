@@ -120,7 +120,7 @@
           </button>
         </div>
 
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
+        <div v-if="error || authError" class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg
@@ -139,7 +139,7 @@
             </div>
             <div class="ml-3">
               <h3 class="text-sm font-medium text-red-800">
-                {{ error }}
+                {{ error || authError }}
               </h3>
             </div>
           </div>
@@ -176,6 +176,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useAuth } from '../../composables/useAuth'
 
 // Page metadata
 definePageMeta({
@@ -203,8 +204,11 @@ const form = ref<RegisterForm>({
   agreeTerms: false
 })
 
+// Use auth composable
+const { register, isLoading, error: authError } = useAuth()
+
 // State
-const loading = ref<boolean>(false)
+const loading = isLoading
 const error = ref<string>('')
 const success = ref<string>('')
 
@@ -236,25 +240,20 @@ const handleRegister = async (): Promise<void> => {
     return
   }
 
-  loading.value = true
-
   try {
-    // TODO: Implement actual registration logic
-    // For now, simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await register({
+      username: form.value.username,
+      name: form.value.name,
+      address: form.value.address,
+      password: form.value.password
+    })
     
-    // Mock registration success
+    // Registration successful - redirect to login
     success.value = 'Account created successfully! Redirecting to login...'
-    
-    // Redirect to login after 2 seconds
-    setTimeout(() => {
-      navigateTo('/login')
-    }, 2000)
+    await navigateTo('/login')
   } catch (err: any) {
-    error.value = 'An error occurred during registration. Please try again.'
+    // Error is already handled by the auth composable
     console.error('Registration error:', err)
-  } finally {
-    loading.value = false
   }
 }
 </script>

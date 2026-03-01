@@ -1,12 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import Login from '../../app/pages/login.vue'
 import Register from '../../app/pages/register.vue'
 
-// Mock navigateTo
+// Mock navigateTo globally
 const mockNavigateTo = vi.fn()
-vi.mock('#app/composables', () => ({
-  navigateTo: mockNavigateTo
+globalThis.navigateTo = mockNavigateTo
+
+// Mock useAuth composable
+const mockLogin = vi.fn()
+const mockRegister = vi.fn()
+
+vi.mock('../../composables/useAuth', () => ({
+  useAuth: () => ({
+    login: mockLogin,
+    register: mockRegister,
+    isLoading: ref(false),
+    error: ref('')
+  })
 }))
 
 describe('Navigation Tests', () => {
@@ -49,6 +61,9 @@ describe('Navigation Tests', () => {
   })
 
   it('navigates to dashboard on successful login', async () => {
+    mockLogin.mockResolvedValue(undefined)
+    mockNavigateTo.mockResolvedValue(undefined)
+
     const wrapper = mount(Login, {
       global: {
         stubs: {
@@ -73,16 +88,24 @@ describe('Navigation Tests', () => {
     
     await form.trigger('submit.prevent')
     
-    // Wait for the async validation to complete
-    await new Promise(resolve => setTimeout(resolve, 1100))
+    // Wait for async operations to complete
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
     
     // For script setup components, we can check the DOM element values
     // The form submission should work correctly
     expect((usernameInput.element as HTMLInputElement).value).toBe('test')
     expect((passwordInput.element as HTMLInputElement).value).toBe('password')
+    
+    // Should call login and navigate
+    expect(mockLogin).toHaveBeenCalledWith('test', 'password', false)
+    expect(mockNavigateTo).toHaveBeenCalledWith('/dashboard')
   })
 
   it('navigates to login on successful registration', async () => {
+    mockRegister.mockResolvedValue(undefined)
+    mockNavigateTo.mockResolvedValue(undefined)
+
     const wrapper = mount(Register)
     
     // Fill form with valid data
@@ -103,10 +126,16 @@ describe('Navigation Tests', () => {
     
     await form.trigger('submit.prevent')
     
-    // Should navigate to login after successful registration
-    // This happens after a timeout in the component
-    setTimeout(() => {
-      expect(mockNavigateTo).toHaveBeenCalledWith('/login')
-    }, 2100)
+    // Wait for async operations to complete
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    
+    // Should call register and navigate
+    expect(mockRegister).toHaveBeenCalledWith({
+      username: 'testuser',
+      name: 'Test User',
+      address: '123 Test St',
+      password: 'password123'
+    })
   })
 })

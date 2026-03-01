@@ -1,5 +1,16 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "types": [
+      "vitest/globals",
+      "vite/client",
+      "nuxt/types"
+    ],
+    "paths": {
+      "#app/composables": ["./node_modules/nuxt/dist/app/composables/index.d.ts"]
+    }
+  },
   "files": [],
   "references": [
     {

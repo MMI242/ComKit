@@ -1,15 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref } from 'vue'
 import Login from '../../app/pages/login.vue'
 
-// Mock navigateTo
-vi.mock('#app/composables', () => ({
-  navigateTo: vi.fn()
+// Mock navigateTo globally
+const mockNavigateTo = vi.fn()
+globalThis.navigateTo = mockNavigateTo
+
+// Mock useAuth composable
+const mockLogin = vi.fn()
+const mockIsLoading = ref(false)
+const mockError = ref('')
+
+vi.mock('../../composables/useAuth', () => ({
+  useAuth: () => ({
+    login: mockLogin,
+    isLoading: mockIsLoading,
+    error: mockError
+  })
 }))
 
 describe('Login Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockIsLoading.value = false
+    mockError.value = ''
   })
 
   const getVm = (wrapper: any) => wrapper.vm as any
@@ -64,18 +79,16 @@ describe('Login Page', () => {
 
   it('shows loading state', () => {
     const wrapper = mount(Login)
-    const vm = getVm(wrapper)
 
     expect(wrapper.find('button[type="submit"]').text()).toBe('Sign in to account')
-    expect(vm.loading).toBe(false)
   })
 
   it('displays error message when error exists', () => {
+    mockError.value = 'Test error'
     const wrapper = mount(Login)
-    const vm = getVm(wrapper)
 
-    expect(vm.error).toBe('')
-    expect(wrapper.find('.bg-red-50').exists()).toBe(false)
+    expect(wrapper.find('.bg-red-50').exists()).toBe(true)
+    expect(wrapper.find('.bg-red-50').text()).toContain('Test error')
   })
 
   it('submits form with correct data', async () => {
@@ -90,16 +103,54 @@ describe('Login Page', () => {
     expect(vm.form.password).toBe('password')
   })
 
-  it('shows error with invalid credentials', async () => {
+  it('calls login function with correct credentials', async () => {
+    mockLogin.mockResolvedValue(undefined)
+    mockNavigateTo.mockResolvedValue(undefined)
+
     const wrapper = mount(Login)
-    const vm = getVm(wrapper)
+
+    await wrapper.find('input#username').setValue('test')
+    await wrapper.find('input#password').setValue('password')
+    await wrapper.find('form').trigger('submit.prevent')
+    
+    // Wait for async operations to complete
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 10))
+
+    expect(mockLogin).toHaveBeenCalledWith('test', 'password', false)
+    expect(mockNavigateTo).toHaveBeenCalledWith('/dashboard')
+  })
+
+  it('calls login with remember me when checked', async () => {
+    mockLogin.mockResolvedValue(undefined)
+    mockNavigateTo.mockResolvedValue(undefined)
+
+    const wrapper = mount(Login)
+
+    await wrapper.find('input#username').setValue('test')
+    await wrapper.find('input#password').setValue('password')
+    await (wrapper.find('input[type="checkbox"]') as any).setChecked(true)
+    await wrapper.find('form').trigger('submit.prevent')
+    
+    // Wait for async operations to complete
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(mockLogin).toHaveBeenCalledWith('test', 'password', true)
+    expect(mockNavigateTo).toHaveBeenCalledWith('/dashboard')
+  })
+
+  it('handles login error', async () => {
+    const mockError = new Error('Invalid credentials')
+    mockLogin.mockRejectedValue(mockError)
+
+    const wrapper = mount(Login)
 
     await wrapper.find('input#username').setValue('wrong')
     await wrapper.find('input#password').setValue('wrong')
     await wrapper.find('form').trigger('submit.prevent')
 
-    await new Promise(resolve => setTimeout(resolve, 1100))
-
-    expect(vm.error).toBe('Invalid username or password')
+    // Should not navigate on error
+    expect(mockNavigateTo).not.toHaveBeenCalled()
   })
 })
