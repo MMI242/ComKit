@@ -1,5 +1,6 @@
 # ComKit
 
+<img width="1600" height="710" alt="LogoPPL" src="https://github.com/user-attachments/assets/074ed03e-c9c0-433f-8733-4b1a4802c243" />
 ComKit is a community kitchen sharing platform that allows users to borrow and share kitchen items within their community. This platform helps reduce waste and promote resource sharing among neighbors.
 
 ## POSTMAN collection
