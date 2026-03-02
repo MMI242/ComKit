@@ -155,9 +155,9 @@
             <div class="ml-3 text-sm">
               <label for="agree-terms" class="text-gray-600">
                 I agree to the
-                <a href="#" class="text-primary-400 hover:text-primary-500 font-medium">Terms of Service</a>
+                <a href="#" class="text-primary-100 hover:text-primary-200 font-medium">Terms of Service</a>
                 and
-                <a href="#" class="text-primary-400 hover:text-primary-500 font-medium">Privacy Policy</a>
+                <a href="#" class="text-primary-100 hover:text-primary-200 font-medium">Privacy Policy</a>
               </label>
             </div>
           </div>
@@ -212,7 +212,7 @@
         <div class="mt-8 text-center">
           <p class="text-sm text-gray-600">
             Already have an account?
-            <NuxtLink to="/login" class="font-medium text-primary-400 hover:text-primary-500 transition-colors">
+            <NuxtLink to="/login" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
               Sign in here
             </NuxtLink>
           </p>

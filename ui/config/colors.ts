@@ -2,18 +2,18 @@
 // You can modify these colors to change the entire theme
 
 export const colors = {
-  // Primary Sage Green Palette
+  // Primary Color Palette - Beautiful New Theme
   primary: {
-    50: '#DCE2BD', // Lightest
-    100: '#D4CDAB', // Light
-    200: '#B6C4A2', // Medium Light
-    300: '#93C0A4', // Medium
-    400: '#8E9B90', // Main
-    500: '#7A8A7C', // Dark
-    600: '#6B7A6D', // Darker
-    700: '#5C6A5E', // Darkest
+    50: '#DAD7CD', // Lightest
+    100: '#A3B18A', // Light
+    200: '#588157', // Medium Light
+    300: '#3A5A40', // Medium
+    400: '#344E41', // Main
+    500: '#2D3748', // Dark
+    600: '#1A1E29', // Darker
+    700: '#0F172A', // Darkest
   },
-  
+
   // Alternative naming (sage) for easier access
   sage: {
     50: '#DCE2BD',

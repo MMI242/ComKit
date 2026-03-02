@@ -4,16 +4,16 @@ This directory contains the color configuration and styling system for the ComKi
 
 ## 🎨 Color Palette
 
-The application uses a sage green color palette with the following shades:
+The application uses a beautiful modern color palette with the following shades:
 
-- **50**: `#DCE2BD` - Lightest (backgrounds)
-- **100**: `#D4CDAB` - Light (subtle backgrounds)
-- **200**: `#B6C4A2` - Medium Light (borders)
-- **300**: `#93C0A4` - Medium (hover states)
-- **400**: `#8E9B90` - Main (primary actions)
-- **500**: `#7A8A7C` - Dark (pressed states)
-- **600**: `#6B7A6D` - Darker (text)
-- **700**: `#5C6A5E` - Darkest (headings)
+- **50**: `#DAD7CD` - Lightest (backgrounds)
+- **100**: `#A3B18A` - Light (subtle backgrounds)
+- **200**: `#588157` - Medium Light (borders)
+- **300**: `#3A5A40` - Medium (hover states)
+- **400**: `#344E41` - Main (primary actions)
+- **500**: `#2D3748` - Dark (pressed states)
+- **600**: `#1A1E29` - Darker (text)
+- **700**: `#0F172A` - Darkest (headings)
 
 ## 📁 Files
 
@@ -102,7 +102,7 @@ export const colors = {
     100: '#DBEAFE',
     200: '#BFDBFE',
     300: '#93C5FD',
-    400: '#60A5FA', // Main blue
+    400: '#344E41', // Main blue
     500: '#3B82F6',
     600: '#2563EB',
     700: '#1D4ED8',

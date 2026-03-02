@@ -16,7 +16,7 @@
           <h2 class="text-3xl font-extrabold text-gray-900">Welcome back</h2>
           <p class="mt-2 text-sm text-gray-600">
             Don't have an account?
-            <NuxtLink to="/register" class="font-medium text-primary-400 hover:text-primary-500">
+            <NuxtLink to="/register" class="font-medium text-primary-100 hover:text-primary-200">
               Sign up now
             </NuxtLink>
           </p>
@@ -60,7 +60,7 @@
               />
               <span class="ml-2">Remember me</span>
             </label>
-            <a href="#" class="text-sm font-medium text-primary-400 hover:text-primary-500">Forgot?</a>
+            <a href="#" class="text-sm font-medium text-primary-100 hover:text-primary-200">Forgot?</a>
           </div>
 
           <button 

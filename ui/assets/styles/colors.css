@@ -1,13 +1,13 @@
 :root {
-  /* Primary Color Palette - Sage Green Theme */
-  --color-primary-50: #DCE2BD; /* Lightest */
-  --color-primary-100: #D4CDAB; /* Light */
-  --color-primary-200: #B6C4A2; /* Medium Light */
-  --color-primary-300: #93C0A4; /* Medium */
-  --color-primary-400: #8E9B90; /* Main */
-  --color-primary-500: #7A8A7C; /* Dark */
-  --color-primary-600: #6B7A6D; /* Darker */
-  --color-primary-700: #5C6A5E; /* Darkest */
+  /* Primary Color Palette - Beautiful New Theme */
+  --color-primary-50: #DAD7CD; /* Lightest */
+  --color-primary-100: #A3B18A; /* Light */
+  --color-primary-200: #588157; /* Medium Light */
+  --color-primary-300: #3A5A40; /* Medium */
+  --color-primary-400: #344E41; /* Main */
+  --color-primary-500: #2D3748; /* Dark */
+  --color-primary-600: #1A1E29; /* Darker */
+  --color-primary-700: #0F172A; /* Darkest */
   
   /* Semantic Colors */
   --color-white: #FFFFFF;
