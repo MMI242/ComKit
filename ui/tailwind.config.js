@@ -22,7 +22,7 @@ export default {
           600: '#1A1E29',
           700: '#0F172A',
         },
-        primary: {
+        sage: {
           50: '#DAD7CD',
           100: '#A3B18A',
           200: '#588157',
