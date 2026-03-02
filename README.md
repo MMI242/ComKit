@@ -14,6 +14,68 @@ If you want to create database, please run `python server-fastapi/migration.py`
 This command will create the SQLite database with all necessary tables including users, items, and requests. The database file will be created in the server-fastapi directory.
 Don't forget to setup your `.env` too.
 
+## Frontend (Nuxt UI) Setup and Running
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+1. Navigate to the UI directory:
+```bash
+cd ui
+```
+
+2. Install dependencies:
+```bash
+# Using npm
+npm install
+
+# Or using yarn
+yarn install
+```
+
+3. Environment Setup:
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your configuration
+# Make sure to set the correct API URL for your backend
+```
+
+### Running the Development Server
+
+1. Start the development server:
+```bash
+# Using npm
+npm run dev
+
+# Or using yarn
+yarn dev
+```
+
+2. The application will be available at:
+```
+http://localhost:3000
+```
+
+### Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm run generate` - Generate static site
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run typecheck` - Run TypeScript type checking
+
+### Important Notes
+
+- Make sure the backend server is running on `http://localhost:8000` before starting the frontend
+- The frontend is configured to use HTTP-only cookies for authentication
+- CORS is properly configured between frontend (port 3000) and backend (port 8000)
+
 ## Fake Data Generation
 
 To populate the database with test data, use the `run_faker.py` script:
