@@ -1,7 +1,7 @@
 ## Skenario 1: Menginput field dengan credential yang benar
 **Skenario**:
 -   User1 mengisi semua field pada formulir registrasi dengan informasi yang benar 
--   User1 menekan tombol "Daftar".
+-   User1 menekan tombol "Create Account".
 
 **Harapan**:
 - User1 berhasil masuk ke halaman konfirmasi atau dashboard setelah proses registrasi selesai.
@@ -12,7 +12,7 @@
 ## Skenario 2: Menginput field yang salah
 **Skenario:** 
 - User1 mengisi field dengan informasi yang salah, misalnya email yang sudah terdaftar atau format email yang tidak valid.
-- User1 menekan tombol "Daftar".
+- User1 menekan tombol "Create Account".
  
 **Harapan**:
 
@@ -23,7 +23,7 @@
 
 ## Skenario 3: Menginput field dengan tidak ada yang dikosongkan 
 **Skenario**:
-- User1 mencoba untuk menekan tombol "Daftar" tanpa mengisi salah satu field yang diperlukan. 
+- User1 mencoba untuk menekan tombol "Create Account" tanpa mengisi salah satu field yang diperlukan. 
   
 **Harapan**:
 - Sistem menampilkan pesan error yang menunjukkan bahwa semua field harus diisi.
