@@ -488,13 +488,44 @@ const handlePhotoChange = (event: Event) => {
 }
 
 const submitItemForm = async () => {
+  // Frontend validation before API call
+  if (!itemForm.value.name.trim()) {
+    alert('Nama item harus diisi')
+    return
+  }
+  
+  if (!itemForm.value.description.trim()) {
+    alert('Deskripsi item harus diisi')
+    return
+  }
+  
+  if (!itemForm.value.qty || itemForm.value.qty <= 0) {
+    alert('Quantity harus lebih besar dari 0')
+    return
+  }
+  
+  if (!itemForm.value.unit.trim()) {
+    alert('Unit harus diisi')
+    return
+  }
+  
+  if (!['borrow', 'share'].includes(itemForm.value.type)) {
+    alert('Tipe item harus dipilih')
+    return
+  }
+  
+  if (!['available', 'borrowed'].includes(itemForm.value.status)) {
+    alert('Status item harus dipilih')
+    return
+  }
+
   isSubmittingItem.value = true
   try {
     const formData = new FormData()
-    formData.append('name', itemForm.value.name)
-    formData.append('description', itemForm.value.description)
+    formData.append('name', itemForm.value.name.trim())
+    formData.append('description', itemForm.value.description.trim())
     formData.append('qty', itemForm.value.qty.toString())
-    formData.append('unit', itemForm.value.unit)
+    formData.append('unit', itemForm.value.unit.trim())
     formData.append('type', itemForm.value.type)
     formData.append('status', itemForm.value.status)
     if (itemForm.value.photo) {
@@ -509,9 +540,22 @@ const submitItemForm = async () => {
 
     await loadUserItems()
     closeItemModal()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to save item:', error)
-    alert('Gagal menyimpan item. Silakan coba lagi.')
+    
+    // Show more specific error messages
+    if (error.status === 400) {
+      // Try to extract the detail message from different possible formats
+      const detail = error.detail || error.message || error.error || 'Data tidak valid'
+      alert(`Gagal menyimpan item: ${detail}`)
+    } else if (error.status === 401) {
+      alert('Sesi login telah berakhir. Silakan login kembali.')
+      await navigateTo('/login')
+    } else if (error.status === 403) {
+      alert('Anda tidak memiliki izin untuk melakukan tindakan ini.')
+    } else {
+      alert('Gagal menyimpan item. Silakan coba lagi.')
+    }
   } finally {
     isSubmittingItem.value = false
   }

@@ -405,8 +405,16 @@ export const userItemsApi = {
   },
 
   async deleteUserItem(itemId: number): Promise<{ message: string; item_id: number }> {
+    const headers: Record<string, string> = {}
+    
+    // Try to get token from memory first (fallback)
+    if (AUTH_TOKEN) {
+      headers['Authorization'] = `Bearer ${AUTH_TOKEN}`
+    }
+
     return apiClient.request<{ message: string; item_id: number }>(`/user/items/${itemId}`, {
       method: 'DELETE',
+      headers,
       credentials: 'include',
     })
   }

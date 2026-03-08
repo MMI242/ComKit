@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -73,7 +75,9 @@ app.add_middleware(
 )
 
 # Static files for media
-app.mount("/media", StaticFiles(directory="media"), name="media")
+media_dir = Path(__file__).parent / "media"
+media_dir.mkdir(exist_ok=True)
+app.mount("/media", StaticFiles(directory=str(media_dir)), name="media")
 
 # Include routers
 app.include_router(auth_router)

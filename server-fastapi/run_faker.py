@@ -105,7 +105,8 @@ def create_fake_items(num_items=20):
             name = random.choice(item_names) + f" {i+1}"
             description = fake.text(max_nb_chars=200)
             qty = random.randint(1, 10)
-            remaining_qty = random.randint(1, qty)
+            # Initially, remaining_qty equals total qty (no requests yet)
+            remaining_qty = qty
             unit = random.choice(["pcs", "kg", "liters", "boxes"])
             type = random.choice(list(ItemType))
             status = ItemStatus.AVAILABLE
@@ -127,7 +128,7 @@ def create_fake_items(num_items=20):
             db.commit()
             db.refresh(item)
             
-            print(f"Created item: {name} (ID: {item.id})")
+            print(f"Created item: {name} (ID: {item.id}, Qty: {qty})")
         
         print(f"Successfully created {num_items} fake items!")
         
@@ -161,8 +162,10 @@ def create_fake_requests(num_requests=15):
             print("No available items found. Please create items first.")
             return
         
+        created_count = 0
+        
         for i in range(num_requests):
-            # Generate fake request data
+            # Pick a random item
             item = random.choice(items)
             
             # Find users who are not the owner of this item
@@ -173,10 +176,33 @@ def create_fake_requests(num_requests=15):
                 continue
                 
             requester = random.choice(eligible_requesters)
-            requested_qty = random.randint(1, min(item.remaining_qty, 5))
+            
+            # Check how much quantity is available for requests
+            # Only count pending and approved requests as reserved
+            reserved_requests = db.query(Request).filter(
+                Request.item_id == item.id,
+                Request.status.in_([RequestStatus.PENDING, RequestStatus.APPROVED])
+            ).all()
+            
+            total_reserved = sum(r.requested_qty for r in reserved_requests)
+            available_qty = item.remaining_qty
+            
+            if available_qty <= 0:
+                continue  # No quantity available for new requests
+            
+            # Request a reasonable amount (1-3 items, but not more than available)
+            max_request_qty = min(available_qty, 3)
+            if max_request_qty <= 0:
+                continue
+                
+            requested_qty = random.randint(1, max_request_qty)
+            
             date_start = fake.date_between(start_date='-30d', end_date='today').strftime('%Y-%m-%d')
             date_end = fake.date_between(start_date='today', end_date='+30d').strftime('%Y-%m-%d')
-            status = random.choice(list(RequestStatus))
+            
+            # For simplicity, create mostly pending requests, some approved
+            # Avoid rejected/cancelled/returned to keep data clean
+            status = random.choice([RequestStatus.PENDING, RequestStatus.PENDING, RequestStatus.APPROVED])
             
             # Create request
             request = Request(
@@ -192,9 +218,19 @@ def create_fake_requests(num_requests=15):
             db.commit()
             db.refresh(request)
             
-            print(f"Created request: {requester.username} -> {item.name} (ID: {request.id})")
+            # Update item remaining_qty if request is approved or pending
+            if status in [RequestStatus.PENDING, RequestStatus.APPROVED]:
+                item.remaining_qty -= requested_qty
+                db.commit()
+            
+            print(f"Created request: {requester.username} -> {item.name} ({requested_qty} {item.unit}, status: {status.value})")
+            created_count += 1
+            
+            # Break if we've created enough requests
+            if created_count >= num_requests:
+                break
         
-        print(f"Successfully created {num_requests} fake requests!")
+        print(f"Successfully created {created_count} fake requests!")
         
     except Exception as e:
         print(f"Error creating fake requests: {e}")
