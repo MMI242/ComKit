@@ -17,11 +17,11 @@ globalThis.defineNuxtRouteMiddleware = vi.fn(() => ({}))
 
 globalThis.useRuntimeConfig = vi.fn(() => ({
   public: {
-    apiBase: 'http://192.168.0.102:8000'
+    apiBase: 'http://localhost:8000'
   }
 }))
 
-initApi('http://192.168.0.102:8000')
+initApi('http://localhost:8000')
 
 Object.defineProperty(document, 'cookie', {
   writable: true,
