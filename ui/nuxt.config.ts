@@ -29,5 +29,9 @@ export default defineNuxtConfig({
       apiTimeout: process.env.API_TIMEOUT || '10000',
       defaultPlaceholderImage: process.env.NUXT_PUBLIC_DEFAULT_PLACEHOLDER_IMAGE || 'https://placehold.co/600x400',
     }
+  },
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000
   }
 })
