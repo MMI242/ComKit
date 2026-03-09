@@ -25,8 +25,8 @@ def login(request: LoginRequest, response: Response, db: Session = Depends(get_d
     access_token = create_access_token({"user_id": user.id, "username": user.username})
     refresh_token = create_refresh_token({"user_id": user.id})
 
-    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite="lax")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, samesite="lax")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite=None, secure=False)
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, samesite=None, secure=False)
     
     return AuthResponse(
         access_token=access_token,
@@ -63,8 +63,8 @@ def register(request: RegisterRequest, response: Response, db: Session = Depends
     refresh_token = create_refresh_token({"user_id": new_user.id})
 
     # Set cookies for auto-login
-    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite="lax")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, samesite="lax")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite=None, secure=False)
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, samesite=None, secure=False)
     
     return AuthResponse(
         access_token=access_token,

@@ -410,11 +410,30 @@ const closeRequestForm = (): void => {
 const submitRequest = async (): Promise<void> => {
   if (!selectedItem.value) return
   
+  // Validate form data
+  if (!requestForm.value.date_start || !requestForm.value.date_end) {
+    error.value = 'Please fill in both start and end dates'
+    return
+  }
+  
+  // Validate that end date is after start date
+  if (requestForm.value.date_end < requestForm.value.date_start) {
+    error.value = 'End date must be after start date'
+    return
+  }
+  
+  // Ensure data is properly formatted
+  const requestData = {
+    requested_qty: Number(requestForm.value.requested_qty),
+    date_start: String(requestForm.value.date_start),
+    date_end: String(requestForm.value.date_end)
+  }
+  
   try {
     submittingRequest.value = true
     error.value = ''
     
-    await itemsApi.requestItem(selectedItem.value.id, requestForm.value)
+    await itemsApi.requestItem(selectedItem.value.id, requestData)
     
     closeRequestForm()
     await loadItems(pagination.value.current_page, searchQuery.value, filterType.value)

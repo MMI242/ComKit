@@ -263,12 +263,21 @@ class ApiClient {
   }
 
   async postWithAuth<T>(endpoint: string, data?: any): Promise<T> {
-    
-    return this.request<T>(endpoint, {
+    const options: RequestInit = {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
-      credentials: 'include', // This will include cookies automatically
-    })
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+
+    // Try to get token from memory first (fallback)
+    if (AUTH_TOKEN) {
+      (options.headers as any)['Authorization'] = `Bearer ${AUTH_TOKEN}`
+    }
+
+    return this.request<T>(endpoint, options)
   }
 
   async get<T>(endpoint: string, token?: string): Promise<T> {
