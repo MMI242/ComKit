@@ -9,7 +9,7 @@
 
 **Harapan**:
 - Sistem menyimpan item baru.
-- Modal tertutup / form reset.
+- Modal tertutup/form reset.
 - Muncul notifikasi sukses.
 - Item baru tampil di daftar Item Saya dengan data sesuai input.
 
