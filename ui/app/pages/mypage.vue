@@ -78,16 +78,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
                     <img
-                      v-if="item.thumbnail_url"
-                      :src="item.thumbnail_url"
+                      :src="item.thumbnail_url || defaultImage"
+                      @error="handleImageError"
                       :alt="item.name"
                       class="h-12 w-12 rounded-lg object-cover mr-4"
                     />
-                    <div v-else class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center mr-4">
-                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                    </div>
                     <div>
                       <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
                       <p class="text-sm text-gray-500">{{ item.description }}</p>
@@ -130,16 +125,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
                     <img
-                      v-if="request.item.thumbnail_url"
-                      :src="request.item.thumbnail_url"
+                      :src="request.item.thumbnail_url || defaultImage"
+                      @error="handleImageError"
                       :alt="request.item.name"
                       class="h-12 w-12 rounded-lg object-cover mr-4"
                     />
-                    <div v-else class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center mr-4">
-                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                    </div>
                     <div>
                       <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
                       <p class="text-sm text-gray-500">Dari: {{ request.requester?.name }} ({{ request.requester?.username }})</p>
@@ -190,16 +180,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center">
                     <img
-                      v-if="request.item.thumbnail_url"
-                      :src="request.item.thumbnail_url"
+                      :src="request.item.thumbnail_url || defaultImage"
+                      @error="handleImageError"
                       :alt="request.item.name"
                       class="h-12 w-12 rounded-lg object-cover mr-4"
                     />
-                    <div v-else class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center mr-4">
-                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                    </div>
                     <div>
                       <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
                       <p class="text-sm text-gray-500">Kepada: {{ request.owner?.name }} ({{ request.owner?.username }})</p>
@@ -264,6 +249,9 @@ import { userItemsApi, userRequestsApi, authApi } from '~~/services/api'
 import type { UserItem, RequestResponse } from '~~/services/api'
 import AuthLoadingOverlay from '~~/components/AuthLoadingOverlay.vue'
 
+const runtimeConfig = useRuntimeConfig()
+const defaultImage = runtimeConfig.public.defaultPlaceholderImage
+
 type RequestStatusUpdateStatus = 'approved' | 'rejected' | 'returned' | 'cancelled'
 
 // Page metadata
@@ -307,6 +295,10 @@ const incomingRequestsCount = computed(() => {
 })
 
 // Methods
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.src = defaultImage
+}
 const loadUserItems = async () => {
   try {
     const response = await userItemsApi.getUserItems()
