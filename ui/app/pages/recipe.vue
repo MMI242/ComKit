@@ -1,69 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <div class="flex-shrink-0 flex items-center">
-              <h1 class="text-xl font-bold text-primary-700">ComKit</h1>
-            </div>
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <NuxtLink 
-                to="/dashboard" 
-                data-testid="homepage-link"
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Homepage
-              </NuxtLink>
-              <NuxtLink 
-                to="/recipe" 
-                data-testid="recipe-link"
-                class="border-primary-400 text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Resep
-              </NuxtLink>
-              <NuxtLink 
-                to="/mypage" 
-                data-testid="mypage-link"
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium relative"
-              >
-                MyPage
-                <span v-if="notificationCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {{ notificationCount }}
-                </span>
-              </NuxtLink>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-700">Welcome,</span>
-              <span class="text-sm font-medium text-primary-700">{{ user.name }}</span>
-            </div>
-            <button
-              @click="handleLogout"
-              data-testid="logout-btn"
-              :disabled="isLoggingOut"
-              class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="isLoggingOut" class="mr-2">
-                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-              {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div class="min-h-screen bg-gray-50 mobile-container">
+    <TopHeader :user="user" :is-logging-out="isLoggingOut" @logout="handleLogout" />
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <main class="pt-12 pb-16 px-4">
       <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">AI Recipe Generator</h2>
-        
+
         <!-- Input Section -->
         <div class="mb-6">
           <label for="ingredients" class="block text-sm font-medium text-gray-700 mb-2">
@@ -121,7 +64,7 @@
         <!-- Recipe Output -->
         <div v-if="recipe" data-testid="recipe-container" class="border-t pt-6">
           <h3 data-testid="recipe-title" class="text-xl font-semibold text-gray-900 mb-4">{{ recipe.title }}</h3>
-          
+
           <!-- Recipe Meta Info -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="bg-gray-50 p-3 rounded-lg">
@@ -185,6 +128,9 @@
       </div>
     </main>
 
+    <!-- Bottom Navigation -->
+    <BottomNavigation />
+
     <AuthLoadingOverlay :is-authenticating="isAuthenticating" />
   </div>
 </template>
@@ -194,6 +140,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuth } from "~~/composables/useAuth"
 import { aiApi, type RecipeResponse } from "~~/services/api"
 import AuthLoadingOverlay from "~~/components/AuthLoadingOverlay.vue"
+import BottomNavigation from '~~/components/BottomNavigation.vue'
+import TopHeader from '~~/components/TopHeader.vue'
 
 // Page metadata
 definePageMeta({
@@ -232,7 +180,6 @@ const generatedAt = ref<string>('')
 const isLoading = ref(false)
 const error = ref('')
 const isLoggingOut = ref(false)
-const notificationCount = ref(0)
 const isAuthenticating = ref(false)
 
 // Methods
@@ -273,3 +220,10 @@ const handleLogout = async () => {
   }
 }
 </script>
+
+<style scoped>
+.mobile-container {
+  max-width: 375px;
+  margin: 0 auto;
+}
+</style>

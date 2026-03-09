@@ -1,66 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <div class="flex-shrink-0 flex items-center">
-              <h1 class="text-xl font-bold text-primary-700">ComKit</h1>
-            </div>
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <NuxtLink 
-                to="/dashboard" 
-                class="border-primary-400 text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Homepage
-              </NuxtLink>
-              <NuxtLink 
-                to="/recipe" 
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Resep
-              </NuxtLink>
-              <NuxtLink 
-                to="/mypage" 
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium relative"
-              >
-                MyPage
-                <span v-if="notificationCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {{ notificationCount }}
-                </span>
-              </NuxtLink>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-700">Welcome,</span>
-              <span class="text-sm font-medium text-primary-700">{{ user.name }}</span>
-            </div>
-            <button
-              @click="handleLogout"
-              :disabled="isLoggingOut"
-              class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="isLoggingOut" class="mr-2">
-                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-              {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div class="min-h-screen bg-gray-50 mobile-container">
+    <TopHeader :user="user" :is-logging-out="isLoggingOut" @logout="handleLogout" />
 
     <!-- Main content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
+    <main class="pt-12 pb-16 px-4">
+      <div class="py-4">
         <!-- Search and Filter Section -->
         <div class="mb-6 bg-white p-4 rounded-lg shadow">
-          <div class="flex flex-col sm:flex-row gap-4">
+          <div class="flex flex-col gap-4">
             <div class="flex-1">
               <input
                 v-model="searchQuery"
@@ -70,7 +17,7 @@
                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
               <label class="flex items-center">
                 <input
                   v-model="filterType"
@@ -152,7 +99,7 @@
               </div>
 
               <!-- Expanded State -->
-              <div v-else class="p-6">
+              <div v-else class="p-4">
                 <div class="mb-4">
                   <img
                     :src="item.photo_url || config.public.defaultPlaceholderImage"
@@ -160,7 +107,7 @@
                     class="w-full h-48 object-cover rounded-lg"
                   />
                 </div>
-                
+
                 <div class="space-y-2">
                   <h3 class="text-xl font-bold text-gray-900">{{ item.name }}</h3>
                   <p class="text-gray-700">{{ item.description }}</p>
@@ -232,14 +179,14 @@
 
     <!-- Request Form Modal -->
     <div v-if="showRequestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-bold mb-4">Request Item: {{ selectedItem?.name }}</h3>
-        
+
         <!-- Error Message -->
         <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
           {{ error }}
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
@@ -292,6 +239,9 @@
       </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <BottomNavigation />
+
     <AuthLoadingOverlay :is-authenticating="isAuthenticating" />
   </div>
 </template>
@@ -301,6 +251,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuth } from "~~/composables/useAuth"
 import { itemsApi, type Item, type Pagination, type RequestItemRequest } from "~~/services/api"
 import AuthLoadingOverlay from "~~/components/AuthLoadingOverlay.vue"
+import BottomNavigation from '~~/components/BottomNavigation.vue'
+import TopHeader from '~~/components/TopHeader.vue'
 
 const config = useRuntimeConfig()
 
@@ -331,8 +283,7 @@ const expandedItems = ref<number[]>([])
 const showRequestModal = ref(false)
 const selectedItem = ref<Item | null>(null)
 const submittingRequest = ref(false)
-const notificationCount = ref(0)
-const showAddItemModal = ref(false)
+const isLoggingOut = ref(false)
 const error = ref<string>('')
 const isAuthenticating = ref(false)
 
@@ -446,8 +397,6 @@ const goToPage = (page: number): void => {
   }
 }
 
-const isLoggingOut = ref(false)
-
 const handleLogout = async (): Promise<void> => {
   if (isLoggingOut.value) return // Prevent multiple clicks
   
@@ -481,6 +430,13 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.mobile-container {
+  max-width: 375px;
+  margin: 0 auto;
+}
+</style>
 
 <style scoped>
 /* Additional styles if needed */

@@ -1,17 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col md:flex-row font-sans">
-    <div class="hidden md:flex md:w-1/2 bg-primary-400 p-12 flex-col justify-between text-white">
-      <div>
-        <h1 class="text-4xl font-bold tracking-tight">ComKit</h1>
-        <p class="mt-4 text-primary-100 text-lg">Platform berbagi komunitas untuk mempermudah hidup Anda.</p>
-      </div>
-      <div>
-        <p class="text-sm text-primary-200">&copy; 2026 ComKit Inc.</p>
-      </div>
-    </div>
-
-    <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
-      <div class="w-full max-w-sm space-y-8">
+  <div class="min-h-screen mobile-container">
+    <div class="min-h-screen flex flex-col justify-center p-8 bg-white">
+      <div class="w-full max-w-sm mx-auto space-y-8">
         <div>
           <h2 class="text-3xl font-extrabold text-gray-900">Welcome back</h2>
           <p class="mt-2 text-sm text-gray-600">
@@ -145,4 +135,8 @@ const handleLogin = async (): Promise<void> => {
 
 <style scoped>
 /* Additional styles if needed */
+.mobile-container {
+  max-width: 375px;
+  margin: 0 auto;
+}
 </style>

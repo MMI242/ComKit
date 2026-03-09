@@ -1,14 +1,13 @@
 <template>
-  <div class="min-h-screen flex">
-    <!-- Left side - Form -->
-    <div class="flex-1 flex items-center justify-center p-8 relative overflow-hidden">
+  <div class="min-h-screen mobile-container">
+    <div class="min-h-screen flex flex-col justify-center p-8 relative overflow-hidden">
       <!-- Background decoration -->
       <div class="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-primary-100"></div>
       <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-primary-200/30 to-primary-300/30 rounded-full blur-3xl"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tr from-primary-300/30 to-primary-200/30 rounded-full blur-3xl"></div>
-      
+
       <!-- Form container -->
-      <div class="relative w-full max-w-md">
+      <div class="relative w-full max-w-md mx-auto">
         <!-- Logo/Brand -->
         <div class="text-center mb-8">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-300 via-primary-400 to-primary-500 rounded-2xl mb-4 shadow-lg">
@@ -24,49 +23,49 @@
 
         <!-- Form -->
         <form @submit.prevent="handleRegister" class="space-y-5">
-          <!-- Two column layout for name and username -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
-                </div>
-                <input
-                  id="name"
-                  v-model="form.name"
-                  name="name"
-                  type="text"
-                  required
-                  class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
-                  placeholder="John Doe"
-                />
+          <!-- Name -->
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
               </div>
+              <input
+                id="name"
+                v-model="form.name"
+                name="name"
+                type="text"
+                required
+                class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
+                placeholder="John Doe"
+              />
             </div>
-            <div>
-              <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-                Username
-              </label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                  </svg>
-                </div>
-                <input
-                  id="username"
-                  v-model="form.username"
-                  name="username"
-                  type="text"
-                  required
-                  class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
-                  placeholder="@johndoe"
-                />
+          </div>
+
+          <!-- Username -->
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                </svg>
               </div>
+              <input
+                id="username"
+                v-model="form.username"
+                name="username"
+                type="text"
+                required
+                class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
+                placeholder="@johndoe"
+              />
             </div>
           </div>
 
@@ -219,68 +218,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Right side - Hero section -->
-    <div class="hidden lg:flex lg:flex-1 relative overflow-hidden">
-      <!-- Gradient background -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-400 to-primary-600"></div>
-      
-      <!-- Pattern overlay -->
-      <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0 pattern-overlay"></div>
-      </div>
-      
-      <!-- Content -->
-      <div class="relative z-10 flex flex-col justify-center px-12 text-white">
-        <div class="max-w-lg">
-          <h2 class="text-4xl font-bold mb-6">
-            Share Kitchen Items, Build Community
-          </h2>
-          <p class="text-xl mb-8 text-white/90">
-            Join thousands of neighbors who are sharing kitchen equipment, reducing waste, and building stronger communities through the power of sharing.
-          </p>
-          
-          <!-- Features -->
-          <div class="space-y-4">
-            <div class="flex items-center space-x-3">
-              <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold">Share & Borrow</h3>
-                <p class="text-white/80 text-sm">Access kitchen items you need without buying</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-3">
-              <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold">Build Community</h3>
-                <p class="text-white/80 text-sm">Connect with neighbors who share your values</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-3">
-              <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold">Save Money</h3>
-                <p class="text-white/80 text-sm">Reduce expenses by sharing instead of buying</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -410,5 +347,10 @@ const handleRegister = async (): Promise<void> => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.mobile-container {
+  max-width: 375px;
+  margin: 0 auto;
 }
 </style>

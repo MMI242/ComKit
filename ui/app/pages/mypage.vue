@@ -1,218 +1,156 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <div class="flex-shrink-0 flex items-center">
-              <h1 class="text-xl font-bold text-primary-700">ComKit</h1>
-            </div>
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <NuxtLink
-                to="/dashboard"
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Homepage
-              </NuxtLink>
-              <NuxtLink
-                to="/recipe"
-                class="border-transparent text-primary-600 hover:border-primary-300 hover:text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Resep
-              </NuxtLink>
-              <NuxtLink
-                to="/mypage"
-                class="border-primary-400 text-primary-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium relative"
-              >
-                MyPage
-                <span v-if="incomingRequestsCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {{ incomingRequestsCount }}
-                </span>
-              </NuxtLink>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-700">Welcome,</span>
-              <span class="text-sm font-medium text-primary-700">{{ user.name }}</span>
-            </div>
-            <button
-              @click="handleLogout"
-              :disabled="isLoggingOut"
-              class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="isLoggingOut" class="mr-2">
-                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-              {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div class="min-h-screen bg-gray-50 mobile-container">
+    <TopHeader :user="user" :is-logging-out="isLoggingOut" @logout="handleLogout" />
 
     <!-- Main content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <!-- Section Item Saya -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Item Saya</h2>
-          <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div v-if="userItems.length === 0" class="text-center py-8">
-              <p class="text-gray-500">Belum ada item yang dibagikan.</p>
-              <button
-                @click="showAddItemModal = true"
-                class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
-              >
-                Tambah Item Pertama
-              </button>
-            </div>
-            <ul v-else role="list" class="divide-y divide-gray-200">
-              <li v-for="item in userItems" :key="item.id" class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <img
-                      :src="item.thumbnail_url || defaultImage"
-                      @error="handleImageError"
-                      :alt="item.name"
-                      class="h-12 w-12 rounded-lg object-cover mr-4"
-                    />
-                    <div>
-                      <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
-                      <p class="text-sm text-gray-500">{{ item.description }}</p>
-                      <p class="text-sm text-gray-500">
-                        Qty: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }} |
-                        Type: {{ item.type === 'borrow' ? 'Pinjam' : 'Bagikan' }} |
-                        Status: {{ item.status === 'available' ? 'Tersedia' : 'Dipinjam' }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button
-                      @click="editItem(item)"
-                      class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="deleteItem(item.id)"
-                      class="inline-flex items-center px-3 py-1 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Hapus
-                    </button>
+    <main class="pt-12 pb-16 px-4">
+      <!-- Section Item Saya -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Item Saya</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <div v-if="userItems.length === 0" class="text-center py-8">
+            <p class="text-gray-500">Belum ada item yang dibagikan.</p>
+          </div>
+          <ul v-else role="list" class="divide-y divide-gray-200">
+            <li v-for="item in userItems" :key="item.id" class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <img
+                    :src="item.thumbnail_url || defaultImage"
+                    @error="handleImageError"
+                    :alt="item.name"
+                    class="h-12 w-12 rounded-lg object-cover mr-4"
+                  />
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ item.description }}</p>
+                    <p class="text-sm text-gray-500">
+                      Qty: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }} |
+                      Type: {{ item.type === 'borrow' ? 'Pinjam' : 'Bagikan' }} |
+                      Status: {{ item.status === 'available' ? 'Tersedia' : 'Dipinjam' }}
+                    </p>
                   </div>
                 </div>
-              </li>
-            </ul>
-          </div>
+                <div class="flex space-x-2">
+                  <button
+                    @click="editItem(item)"
+                    class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    @click="deleteItem(item.id)"
+                    class="inline-flex items-center px-3 py-1 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
+      </div>
 
-        <!-- Section Request Masuk -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Masuk</h2>
-          <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div v-if="incomingRequests.length === 0" class="text-center py-8">
-              <p class="text-gray-500">Belum ada request masuk.</p>
-            </div>
-            <ul v-else role="list" class="divide-y divide-gray-200">
-              <li v-for="request in incomingRequests" :key="request.id" class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <img
-                      :src="request.item.thumbnail_url || defaultImage"
-                      @error="handleImageError"
-                      :alt="request.item.name"
-                      class="h-12 w-12 rounded-lg object-cover mr-4"
-                    />
-                    <div>
-                      <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
-                      <p class="text-sm text-gray-500">Dari: {{ request.requester?.name }} ({{ request.requester?.username }})</p>
-                      <p class="text-sm text-gray-500">
-                        Qty: {{ request.requested_qty }} {{ request.unit }} |
-                        Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                        Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex space-x-2" v-if="request.status === 'pending'">
-                    <button
-                      @click="openStatusModal(request, 'approved')"
-                      class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      @click="openStatusModal(request, 'rejected')"
-                      class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                  <div class="flex space-x-2" v-else-if="request.status === 'approved'">
-                    <button
-                      @click="openStatusModal(request, 'returned')"
-                      class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Sudah Dikembalikan
-                    </button>
+      <!-- Section Request Masuk -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Masuk</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <div v-if="incomingRequests.length === 0" class="text-center py-8">
+            <p class="text-gray-500">Belum ada request masuk.</p>
+          </div>
+          <ul v-else role="list" class="divide-y divide-gray-200">
+            <li v-for="request in incomingRequests" :key="request.id" class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <img
+                    :src="request.item.thumbnail_url || defaultImage"
+                    @error="handleImageError"
+                    :alt="request.item.name"
+                    class="h-12 w-12 rounded-lg object-cover mr-4"
+                  />
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
+                    <p class="text-sm text-gray-500">Dari: {{ request.requester?.name }} ({{ request.requester?.username }})</p>
+                    <p class="text-sm text-gray-500">
+                      Qty: {{ request.requested_qty }} {{ request.unit }} |
+                      Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
+                      Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
+                    </p>
                   </div>
                 </div>
-              </li>
-            </ul>
-          </div>
+                <div class="flex space-x-2" v-if="request.status === 'pending'">
+                  <button
+                    @click="openStatusModal(request, 'approved')"
+                    class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    @click="openStatusModal(request, 'rejected')"
+                    class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Reject
+                  </button>
+                </div>
+                <div class="flex space-x-2" v-else-if="request.status === 'approved'">
+                  <button
+                    @click="openStatusModal(request, 'returned')"
+                    class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Sudah Dikembalikan
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
+      </div>
 
-        <!-- Section Request Saya -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Saya</h2>
-          <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div v-if="outgoingRequests.length === 0" class="text-center py-8">
-              <p class="text-gray-500">Belum ada request yang dikirim.</p>
-            </div>
-            <ul v-else role="list" class="divide-y divide-gray-200">
-              <li v-for="request in outgoingRequests" :key="request.id" class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <img
-                      :src="request.item.thumbnail_url || defaultImage"
-                      @error="handleImageError"
-                      :alt="request.item.name"
-                      class="h-12 w-12 rounded-lg object-cover mr-4"
-                    />
-                    <div>
-                      <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
-                      <p class="text-sm text-gray-500">Kepada: {{ request.owner?.name }} ({{ request.owner?.username }})</p>
-                      <p class="text-sm text-gray-500">
-                        Qty: {{ request.requested_qty }} {{ request.unit }} |
-                        Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                        Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex space-x-2" v-if="request.status === 'pending'">
-                    <button
-                      @click="openStatusModal(request, 'cancelled')"
-                      class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Cancel
-                    </button>
+      <!-- Section Request Saya -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Saya</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <div v-if="outgoingRequests.length === 0" class="text-center py-8">
+            <p class="text-gray-500">Belum ada request yang dikirim.</p>
+          </div>
+          <ul v-else role="list" class="divide-y divide-gray-200">
+            <li v-for="request in outgoingRequests" :key="request.id" class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <img
+                    :src="request.item.thumbnail_url || defaultImage"
+                    @error="handleImageError"
+                    :alt="request.item.name"
+                    class="h-12 w-12 rounded-lg object-cover mr-4"
+                  />
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
+                    <p class="text-sm text-gray-500">Kepada: {{ request.owner?.name }} ({{ request.owner?.username }})</p>
+                    <p class="text-sm text-gray-500">
+                      Qty: {{ request.requested_qty }} {{ request.unit }} |
+                      Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
+                      Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
+                    </p>
                   </div>
                 </div>
-              </li>
-            </ul>
-          </div>
+                <div class="flex space-x-2" v-if="request.status === 'pending'">
+                  <button
+                    @click="openStatusModal(request, 'cancelled')"
+                    class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
-
       </div>
     </main>
 
     <!-- Status Update Confirmation Modal -->
     <div v-if="showStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="cancelStatusUpdate">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="relative top-20 mx-auto p-5 border w-full max-w-md mx-4 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Update Status</h3>
           <p class="text-sm text-gray-500 mb-4">
@@ -237,6 +175,167 @@
       </div>
     </div>
 
+    <!-- Add/Edit Item Modal -->
+    <div v-if="showAddItemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeItemModal">
+      <div class="relative top-20 mx-auto p-5 border w-full max-w-md mx-4 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ editingItem ? 'Edit Item' : 'Tambah Item Baru' }}</h3>
+          <form @submit.prevent="submitItemForm" class="space-y-4">
+            <div>
+              <label for="item-name" class="block text-sm font-medium text-gray-700">Nama Item</label>
+              <input
+                id="item-name"
+                v-model="itemForm.name"
+                type="text"
+                required
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Masukkan nama item"
+              />
+            </div>
+            <div>
+              <label for="item-description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+              <textarea
+                id="item-description"
+                v-model="itemForm.description"
+                rows="3"
+                required
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Masukkan deskripsi item"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="item-qty" class="block text-sm font-medium text-gray-700">Quantity</label>
+                <input
+                  id="item-qty"
+                  v-model.number="itemForm.qty"
+                  type="number"
+                  min="1"
+                  required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label for="item-unit" class="block text-sm font-medium text-gray-700">Unit</label>
+                <input
+                  id="item-unit"
+                  v-model="itemForm.unit"
+                  type="text"
+                  required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="pcs, kg, etc."
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Tipe</label>
+              <div class="mt-1">
+                <label class="inline-flex items-center">
+                  <input
+                    v-model="itemForm.type"
+                    type="radio"
+                    value="borrow"
+                    class="form-radio h-4 w-4 text-primary-600"
+                  />
+                  <span class="ml-2">Pinjam</span>
+                </label>
+                <label class="inline-flex items-center ml-6">
+                  <input
+                    v-model="itemForm.type"
+                    type="radio"
+                    value="share"
+                    class="form-radio h-4 w-4 text-primary-600"
+                  />
+                  <span class="ml-2">Bagikan</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Status</label>
+              <div class="mt-1">
+                <label class="inline-flex items-center">
+                  <input
+                    v-model="itemForm.status"
+                    type="radio"
+                    value="available"
+                    class="form-radio h-4 w-4 text-primary-600"
+                  />
+                  <span class="ml-2">Tersedia</span>
+                </label>
+                <label class="inline-flex items-center ml-6">
+                  <input
+                    v-model="itemForm.status"
+                    type="radio"
+                    value="borrowed"
+                    class="form-radio h-4 w-4 text-primary-600"
+                  />
+                  <span class="ml-2">Dipinjam</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label for="item-photo" class="block text-sm font-medium text-gray-700">Foto (Opsional)</label>
+              <input
+                id="item-photo"
+                ref="photoInput"
+                type="file"
+                accept="image/*"
+                @change="handlePhotoChange"
+                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+              />
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                @click="closeItemModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                :disabled="isSubmittingItem"
+                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              >
+                {{ isSubmittingItem ? 'Menyimpan...' : (editingItem ? 'Update Item' : 'Tambah Item') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="showDeleteModal = false">
+      <div class="relative top-20 mx-auto p-5 border w-full max-w-md mx-4 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Hapus Item</h3>
+          <p class="text-sm text-gray-500 mb-4">
+            Apakah Anda yakin ingin menghapus item "<b>{{ itemToDelete?.name }}</b>"?
+            Tindakan ini tidak dapat dibatalkan.
+          </p>
+          <div class="flex justify-end space-x-3">
+            <button
+              @click="showDeleteModal = false"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Batal
+            </button>
+            <button
+              @click="confirmDeleteItem"
+              :disabled="isDeletingItem"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+            >
+              {{ isDeletingItem ? 'Menghapus...' : 'Hapus' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <BottomNavigation :incomingRequestsCount="incomingRequestsCount" />
+
     <AuthLoadingOverlay :is-authenticating="isAuthenticating" />
   </div>
 </template>
@@ -247,6 +346,8 @@ import { userItemsApi, userRequestsApi, authApi } from '~~/services/api'
 import type { UserItem, RequestResponse } from '~~/services/api'
 import AuthLoadingOverlay from '~~/components/AuthLoadingOverlay.vue'
 import { useAuth } from "~~/composables/useAuth"
+import BottomNavigation from '~~/components/BottomNavigation.vue'
+import TopHeader from '~~/components/TopHeader.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const defaultImage = runtimeConfig.public.defaultPlaceholderImage
@@ -270,6 +371,7 @@ const userItems = ref<UserItem[]>([])
 const incomingRequests = ref<RequestResponse[]>([])
 const outgoingRequests = ref<RequestResponse[]>([])
 const isLoggingOut = ref(false)
+
 const showAddItemModal = ref(false)
 const editingItem = ref<UserItem | null>(null)
 const showDeleteModal = ref(false)
@@ -350,7 +452,7 @@ const editItem = (item: UserItem) => {
     status: item.status,
     photo: null
   }
-  showAddItemModal.value = false
+  showAddItemModal.value = true
 }
 
 const closeItemModal = () => {
@@ -553,3 +655,10 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.mobile-container {
+  max-width: 375px;
+  margin: 0 auto;
+}
+</style>
