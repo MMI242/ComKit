@@ -262,10 +262,9 @@ class ApiClient {
     })
   }
 
-  async postWithAuth<T>(endpoint: string, data?: any): Promise<T> {
+  async postWithAuth<T>(method: string, endpoint: string, data?: any): Promise<T> {
     const options: RequestInit = {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      method,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -275,6 +274,10 @@ class ApiClient {
     // Try to get token from memory first (fallback)
     if (AUTH_TOKEN) {
       (options.headers as any)['Authorization'] = `Bearer ${AUTH_TOKEN}`
+    }
+
+    if (data) {
+      options.body = JSON.stringify(data)
     }
 
     return this.request<T>(endpoint, options)
@@ -364,14 +367,14 @@ export const itemsApi = {
     itemId: number,
     requestData: RequestItemRequest
   ): Promise<RequestItemResponse> {
-    return apiClient.postWithAuth<RequestItemResponse>(`/items/${itemId}/request`, requestData)
+    return apiClient.postWithAuth<RequestItemResponse>('POST', `/items/${itemId}/request`, requestData)
   }
 }
 
 // AI API service
 export const aiApi = {
   async generateRecipe(request: RecipeRequest): Promise<RecipeResponse> {
-    return apiClient.postWithAuth<RecipeResponse>('/ai/recipe', request)
+    return apiClient.postWithAuth<RecipeResponse>('POST', '/ai/recipe', request)
   }
 }
 
@@ -443,11 +446,7 @@ export const userRequestsApi = {
     requestId: number,
     statusUpdate: RequestStatusUpdate
   ): Promise<RequestResponse> {
-    return apiClient.request<RequestResponse>(`/user/requests/${requestId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(statusUpdate),
-      credentials: 'include',
-    })
+    return apiClient.postWithAuth<RequestResponse>('PATCH', `/user/requests/${requestId}`, statusUpdate)
   }
 }
 

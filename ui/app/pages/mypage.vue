@@ -146,19 +146,19 @@
                       <p class="text-sm text-gray-500">
                         Qty: {{ request.requested_qty }} {{ request.unit }} |
                         Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                        Status: <span :class="getStatusColor(request.status)">{{ getStatusText(request.status) }}</span>
+                        Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
                       </p>
                     </div>
                   </div>
                   <div class="flex space-x-2" v-if="request.status === 'pending'">
                     <button
-                      @click="updateRequestStatus(request.id, 'approved')"
+                      @click="openStatusModal(request, 'approved')"
                       class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
                       Approve
                     </button>
                     <button
-                      @click="updateRequestStatus(request.id, 'rejected')"
+                      @click="openStatusModal(request, 'rejected')"
                       class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
                       Reject
@@ -166,7 +166,7 @@
                   </div>
                   <div class="flex space-x-2" v-else-if="request.status === 'approved'">
                     <button
-                      @click="updateRequestStatus(request.id, 'returned')"
+                      @click="openStatusModal(request, 'returned')"
                       class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       Sudah Dikembalikan
@@ -206,13 +206,13 @@
                       <p class="text-sm text-gray-500">
                         Qty: {{ request.requested_qty }} {{ request.unit }} |
                         Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                        Status: <span :class="getStatusColor(request.status)">{{ getStatusText(request.status) }}</span>
+                        Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
                       </p>
                     </div>
                   </div>
                   <div class="flex space-x-2" v-if="request.status === 'pending'">
                     <button
-                      @click="updateRequestStatus(request.id, 'cancelled')"
+                      @click="openStatusModal(request, 'cancelled')"
                       class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
                       Cancel
@@ -223,144 +223,31 @@
             </ul>
           </div>
         </div>
+
       </div>
     </main>
 
-    <!-- Add/Edit Item Modal -->
-    <div v-if="showAddItemModal || editingItem" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeItemModal">
+    <!-- Status Update Confirmation Modal -->
+    <div v-if="showStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="cancelStatusUpdate">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ editingItem ? 'Edit Item' : 'Tambah Item Baru' }}
-          </h3>
-          <form @submit.prevent="submitItemForm" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Nama Item</label>
-              <input
-                v-model="itemForm.name"
-                type="text"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Deskripsi</label>
-              <textarea
-                v-model="itemForm.description"
-                rows="3"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              ></textarea>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Qty</label>
-                <input
-                  v-model.number="itemForm.qty"
-                  type="number"
-                  min="1"
-                  required
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Unit</label>
-                <input
-                  v-model="itemForm.unit"
-                  type="text"
-                  placeholder="pcs"
-                  required
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Tipe</label>
-              <select
-                v-model="itemForm.type"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="borrow">Pinjam</option>
-                <option value="share">Bagikan</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                v-model="itemForm.status"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="available">Tersedia</option>
-                <option value="borrowed">Dipinjam</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Foto Item</label>
-              <input
-                ref="photoInput"
-                type="file"
-                accept="image/*"
-                @change="handlePhotoChange"
-                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-              />
-            </div>
-            <div class="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                @click="closeItemModal"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                :disabled="isSubmittingItem"
-                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span v-if="isSubmittingItem" class="mr-2">
-                  <svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </span>
-                {{ isSubmittingItem ? 'Menyimpan...' : 'Simpan' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="showDeleteModal = false">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Hapus</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Update Status</h3>
           <p class="text-sm text-gray-500 mb-4">
-            Apakah Anda yakin ingin menghapus item "{{ itemToDelete?.name }}"?
+            Apakah Anda yakin ingin <b>{{ getStatusActionText(newStatus!) }}</b> request dari {{ selectedRequest?.requester?.name }} untuk item "{{ selectedRequest?.item.name }}"?
             Tindakan ini tidak dapat dibatalkan.
           </p>
           <div class="flex justify-end space-x-3">
             <button
-              @click="showDeleteModal = false"
+              @click="cancelStatusUpdate"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Batal
             </button>
             <button
-              @click="confirmDeleteItem"
-              :disabled="isDeletingItem"
-              class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="confirmStatusUpdate"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              <span v-if="isDeletingItem" class="mr-2">
-                <svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-              {{ isDeletingItem ? 'Menghapus...' : 'Hapus' }}
+              Konfirmasi
             </button>
           </div>
         </div>
@@ -373,8 +260,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { userItemsApi, userRequestsApi, UserItem, RequestResponse } from '~~/services/api'
+import { userItemsApi, userRequestsApi, authApi } from '~~/services/api'
+import type { UserItem, RequestResponse } from '~~/services/api'
 import AuthLoadingOverlay from '~~/components/AuthLoadingOverlay.vue'
+
+type RequestStatusUpdateStatus = 'approved' | 'rejected' | 'returned' | 'cancelled'
 
 // Page metadata
 definePageMeta({
@@ -394,6 +284,10 @@ const itemToDelete = ref<UserItem | null>(null)
 const isSubmittingItem = ref(false)
 const isDeletingItem = ref(false)
 const isAuthenticating = ref(false)
+
+const showStatusModal = ref(false)
+const selectedRequest = ref<RequestResponse | null>(null)
+const newStatus = ref<RequestStatusUpdateStatus | null>(null)
 
 const itemForm = ref({
   name: '',
@@ -586,7 +480,13 @@ const confirmDeleteItem = async () => {
   }
 }
 
-const updateRequestStatus = async (requestId: number, status: string) => {
+const openStatusModal = (request: RequestResponse, status: RequestStatusUpdateStatus) => {
+  selectedRequest.value = request
+  newStatus.value = status
+  showStatusModal.value = true
+}
+
+const updateRequestStatus = async (requestId: number, status: RequestStatusUpdateStatus) => {
   try {
     await userRequestsApi.updateRequestStatus(requestId, { status })
     await Promise.all([loadRequests(), loadUserItems()])
@@ -594,6 +494,21 @@ const updateRequestStatus = async (requestId: number, status: string) => {
     console.error('Failed to update request status:', error)
     alert('Gagal mengupdate status request. Silakan coba lagi.')
   }
+}
+
+const confirmStatusUpdate = async () => {
+  if (!selectedRequest.value || !newStatus.value) return
+
+  await updateRequestStatus(selectedRequest.value.id, newStatus.value as RequestStatusUpdateStatus)
+  showStatusModal.value = false
+  selectedRequest.value = null
+  newStatus.value = null
+}
+
+const cancelStatusUpdate = () => {
+  showStatusModal.value = false
+  selectedRequest.value = null
+  newStatus.value = null
 }
 
 const formatDate = (dateString: string) => {
@@ -611,14 +526,13 @@ const getStatusColor = (status: string) => {
   }
 }
 
-const getStatusText = (status: string) => {
+const getStatusActionText = (status: string) => {
   switch (status) {
-    case 'pending': return 'Pending'
-    case 'approved': return 'Disetujui'
-    case 'rejected': return 'Ditolak'
-    case 'returned': return 'Dikembalikan'
-    case 'cancelled': return 'Dibatalkan'
-    default: return status
+    case 'approved': return 'menyetujui'
+    case 'rejected': return 'menolak'
+    case 'returned': return 'menandai sebagai dikembalikan'
+    case 'cancelled': return 'membatalkan'
+    default: return 'mengupdate'
   }
 }
 
