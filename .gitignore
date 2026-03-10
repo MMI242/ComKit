@@ -158,3 +158,4 @@ Thumbs.db
 backup/
 server-laravel
 
+node_modules
