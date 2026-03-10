@@ -5,12 +5,9 @@ from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import os
-from dotenv import load_dotenv
 
 from database import get_db
 from models import User
-
-load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this")
 ALGORITHM = "HS256"

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime
 import httpx
 import os
-from dotenv import load_dotenv
 import json
 from sqlalchemy.orm import Session
 
@@ -10,8 +9,6 @@ from models import User
 from schemas import RecipeRequest, RecipeResponse
 from auth import get_current_user, decode_token
 from database import get_db
-
-load_dotenv()
 
 router = APIRouter(prefix="/ai", tags=["AI Recipe"])
 
@@ -149,12 +146,16 @@ Only respond with valid JSON, no additional text."""
                 generated_at=datetime.utcnow()
             )
             
-    except httpx.TimeoutException:
+    except httpx.TimeoutException as e:
+        print(f"Ollama API timeout: {e}")
+        print(f"{OLLAMA_API_URL}/api/generate")
         raise HTTPException(
             status_code=503,
             detail="AI service temporarily unavailable. Please try again later"
         )
-    except httpx.RequestError:
+    except httpx.RequestError as e:
+        print(f"Ollama API request error: {e}")
+        print(f"{OLLAMA_API_URL}/api/generate")
         raise HTTPException(
             status_code=503,
             detail="AI service temporarily unavailable. Please try again later"

@@ -1,12 +1,15 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables FIRST before any imports that use them
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
-import os
-from dotenv import load_dotenv
 
 from database import Base, engine
 from routes_auth import router as auth_router
@@ -16,8 +19,6 @@ from routes_user_requests import router as user_requests_router
 from routes_ai import router as ai_router
 from routes_dev import router as dev_router
 from exceptions import http_exception_handler, validation_exception_handler
-
-load_dotenv()
 
 
 def get_cors_allowed_origins() -> list[str]:
