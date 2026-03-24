@@ -12,15 +12,17 @@ from auth import get_current_user, decode_token
 from database import get_db
 from config import config_manager
 from decorators import log_execution_time, retry_on_failure, cache_result
+from ai_proxy import ai_proxy
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/ai", tags=["AI Recipe"])
 
-OLLAMA_API_URL = config_manager.get("OLLAMA_API_URL", "https://api.ollama.com").rstrip("/")
-OLLAMA_API_KEY = config_manager.get("OLLAMA_API_KEY")
-DEFAULT_OLLAMA_MODEL = (
-    config_manager.get("DEFAULT_OLLAMA_MODEL")
-    or config_manager.get("OLLAMA_DEFAULT_MODEL")
-)
+# Check if AI is properly configured
+def is_ai_configured() -> bool:
+    """Check if at least one AI provider is configured"""
+    return bool(config_manager.get("DEFAULT_OLLAMA_MODEL") or config_manager.get("OPENAI_API_KEY"))
 
 # Abstract Factory for AI prompt generation
 class AIPromptFactory(ABC):
@@ -102,10 +104,10 @@ async def generate_recipe(
     if not request.ingredients or request.ingredients.strip() == "":
         raise HTTPException(status_code=400, detail="Ingredients cannot be empty")
 
-    if not DEFAULT_OLLAMA_MODEL:
+    if not is_ai_configured():
         raise HTTPException(
             status_code=503,
-            detail="AI model is not configured on the server"
+            detail="AI service is not configured on the server"
         )
     
     # Use Factory Method to create prompt
@@ -116,88 +118,61 @@ async def generate_recipe(
         raise HTTPException(status_code=500, detail=str(e))
     
     try:
-        # Prepare headers for Ollama API
-        headers = {"Content-Type": "application/json"}
-        if OLLAMA_API_KEY:
-            headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
+        # Use AI Proxy to generate recipe with fallback
+        result = await ai_proxy.generate_recipe(
+            ingredients=prompt,
+            model=config_manager.get("DEFAULT_OLLAMA_MODEL")
+        )
         
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{OLLAMA_API_URL}/api/generate",
-                json={
-                    "model": DEFAULT_OLLAMA_MODEL,
-                    "prompt": prompt,
-                    "stream": False
-                },
-                headers=headers
-            )
+        # Parse the response content
+        content = result.get("content", "")
+        provider = result.get("provider", "unknown")
+        
+        # Try to parse JSON from response
+        try:
+            # Extract JSON from markdown code blocks if present
+            if "```json" in content:
+                json_start = content.find("```json") + 7
+                json_end = content.find("```", json_start)
+                content = content[json_start:json_end].strip()
+            elif "```" in content:
+                json_start = content.find("```") + 3
+                json_end = content.find("```", json_start)
+                content = content[json_start:json_end].strip()
             
-            if response.status_code != 200:
-                # Retry once in case the upstream service returns a transient error.
-                response = await client.post(
-                    f"{OLLAMA_API_URL}/api/generate",
-                    json={
-                        "model": DEFAULT_OLLAMA_MODEL,
-                        "prompt": prompt,
-                        "stream": False
-                    },
-                    headers=headers
-                )
+            recipe_data = json.loads(content)
             
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=503,
-                    detail=response.text
-                )
+            # Validate required fields
+            if not all(k in recipe_data for k in ["title", "ingredients", "instructions"]):
+                raise ValueError("Missing required fields")
             
-            result = response.json()
-            ai_response = result.get("response", "")
-            
-            # Try to parse JSON from response
-            try:
-                # Extract JSON from markdown code blocks if present
-                if "```json" in ai_response:
-                    json_start = ai_response.find("```json") + 7
-                    json_end = ai_response.find("```", json_start)
-                    ai_response = ai_response[json_start:json_end].strip()
-                elif "```" in ai_response:
-                    json_start = ai_response.find("```") + 3
-                    json_end = ai_response.find("```", json_start)
-                    ai_response = ai_response[json_start:json_end].strip()
-                
-                recipe_data = json.loads(ai_response)
-                
-                # Validate required fields
-                if not all(k in recipe_data for k in ["title", "ingredients", "instructions"]):
-                    raise ValueError("Missing required fields")
-                
-            except (json.JSONDecodeError, ValueError):
-                # Fallback to raw text if parsing fails
-                recipe_data = {
-                    "title": "Generated Recipe",
-                    "raw_text": ai_response,
-                    "ingredients": [],
-                    "instructions": [],
-                    "cooking_time": "N/A",
-                    "servings": "N/A",
-                    "difficulty": "N/A"
-                }
-            
-            return RecipeResponse(
-                recipe=recipe_data,
-                generated_at=datetime.utcnow()
-            )
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to raw text if parsing fails
+            recipe_data = {
+                "title": "Generated Recipe",
+                "raw_text": content,
+                "ingredients": [],
+                "instructions": [],
+                "cooking_time": "N/A",
+                "servings": "N/A",
+                "difficulty": "N/A"
+            }
+        
+        logger.info(f"Recipe generated successfully using {provider} provider")
+        
+        return RecipeResponse(
+            recipe=recipe_data,
+            generated_at=datetime.utcnow()
+        )
             
     except httpx.TimeoutException as e:
-        print(f"Ollama API timeout: {e}")
-        print(f"{OLLAMA_API_URL}/api/generate")
+        logger.error(f"AI service timeout: {e}")
         raise HTTPException(
             status_code=503,
             detail="AI service temporarily unavailable. Please try again later"
         )
     except httpx.RequestError as e:
-        print(f"Ollama API request error: {e}")
-        print(f"{OLLAMA_API_URL}/api/generate")
+        logger.error(f"AI service request error: {e}")
         raise HTTPException(
             status_code=503,
             detail="AI service temporarily unavailable. Please try again later"
