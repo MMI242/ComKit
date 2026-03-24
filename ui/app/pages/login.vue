@@ -10,6 +10,11 @@
               Sign up now
             </NuxtLink>
           </p>
+          <p class="mt-1 text-sm text-gray-600">
+            <NuxtLink to="/about" class="font-medium text-primary-100 hover:text-primary-200">
+              About ComKit
+            </NuxtLink>
+          </p>
         </div>
 
         <form class="mt-8 space-y-6" @submit.prevent="handleLogin">

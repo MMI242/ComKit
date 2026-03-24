@@ -11,6 +11,12 @@
             </svg>
           </button>
           <div v-show="showMenu" @click.self="showMenu = false" class="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+            <NuxtLink to="/about" @click="showMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Tentang Kami
+            </NuxtLink>
+            <NuxtLink to="/terms" @click="showMenu = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Terms & Conditions
+            </NuxtLink>
             <button @click="$emit('logout'); showMenu = false" :disabled="isLoggingOut" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50">
               {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
             </button>

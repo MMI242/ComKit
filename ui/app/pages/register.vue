@@ -1,10 +1,8 @@
 <template>
   <div class="min-h-screen mobile-container">
     <div class="min-h-screen flex flex-col justify-center p-8 relative overflow-hidden">
-      <!-- Background decoration -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-primary-100"></div>
-      <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-primary-200/30 to-primary-300/30 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tr from-primary-300/30 to-primary-200/30 rounded-full blur-3xl"></div>
+      <!-- Background -->
+      <div class="absolute inset-0 bg-gray-50"></div>
 
       <!-- Form container -->
       <div class="relative w-full max-w-md mx-auto">
@@ -154,9 +152,9 @@
             <div class="ml-3 text-sm">
               <label for="agree-terms" class="text-gray-600">
                 I agree to the
-                <a href="#" class="text-primary-100 hover:text-primary-200 font-medium">Terms of Service</a>
+                <NuxtLink to="/terms" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Terms and Conditions</NuxtLink>
                 and
-                <a href="#" class="text-primary-100 hover:text-primary-200 font-medium">Privacy Policy</a>
+                <NuxtLink to="/terms" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Privacy Policy</NuxtLink>
               </label>
             </div>
           </div>
@@ -213,6 +211,11 @@
             Already have an account?
             <NuxtLink to="/login" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
               Sign in here
+            </NuxtLink>
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            <NuxtLink to="/about" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
+              Learn more about ComKit
             </NuxtLink>
           </p>
         </div>
