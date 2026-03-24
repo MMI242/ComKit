@@ -28,6 +28,7 @@ export default defineNuxtConfig({
       apiBase: process.env.API_BASE_URL || 'http://localhost:8000',
       apiTimeout: process.env.API_TIMEOUT || '10000',
       defaultPlaceholderImage: process.env.NUXT_PUBLIC_DEFAULT_PLACEHOLDER_IMAGE || 'https://placehold.co/600x400',
+      enableNotifications: process.env.NUXT_PUBLIC_ENABLE_NOTIFICATIONS !== 'false',
     }
   },
   devServer: {

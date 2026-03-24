@@ -6,8 +6,13 @@ from database import get_db
 from models import Request, Item, User, RequestStatus
 from schemas import RequestListResponse, RequestResponse, RequestItemInfo, RequestUser, RequestStatusUpdate
 from auth import get_current_user
+from notifications import notification_manager, create_request_notification
+import os
 
 router = APIRouter(prefix="/user/requests", tags=["User Requests"])
+
+# Check if notifications are enabled
+ENABLE_NOTIFICATIONS = os.getenv("ENABLE_NOTIFICATIONS", "true").lower() == "true"
 
 @router.get("", response_model=RequestListResponse)
 def get_user_requests(
@@ -86,7 +91,7 @@ def get_user_requests(
     return RequestListResponse(requests=response_list)
 
 @router.patch("/{request_id}", response_model=RequestResponse)
-def update_request_status(
+async def update_request_status(
     request_id: int,
     status_update: RequestStatusUpdate,
     db: Session = Depends(get_db),
@@ -141,9 +146,40 @@ def update_request_status(
     db.commit()
     db.refresh(request)
     
-    # Get requester/owner info
+    # Get requester/owner info for notifications
     requester = db.query(User).filter(User.id == request.requester_id).first()
     owner = db.query(User).filter(User.id == item.owner_id).first()
+    
+    # Send real-time notifications
+    if ENABLE_NOTIFICATIONS:
+        try:
+            # Determine notification type and recipient
+            if is_owner:
+                # Owner action - notify requester
+                notification_recipient_id = request.requester_id
+                notification_type = f"request_{new_status}"
+            else:
+                # Requester action - notify owner
+                notification_recipient_id = item.owner_id
+                notification_type = f"request_{new_status}"
+            
+            # Create and send notification
+            notification = create_request_notification(
+                type=notification_type,
+                request_id=request.id,
+                item_name=item.name,
+                requester_name=requester.name,
+                owner_name=owner.name,
+                status=new_status
+            )
+            
+            await notification_manager.send_personal_notification(notification_recipient_id, notification)
+            
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send notification: {e}")
     
     return RequestResponse(
         id=request.id,

@@ -10,3 +10,4 @@ httpx==0.25.2
 python-dotenv==1.0.0
 faker==40.5.1
 bcrypt==5.0.0
+websockets==12.0

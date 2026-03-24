@@ -6,8 +6,13 @@ from database import get_db
 from models import Item, Request, User, RequestStatus
 from schemas import ItemListResponse, ItemResponse, ItemOwner, RequestCreate, RequestResponse, RequestItemInfo, RequestUser
 from auth import get_current_user
+from notifications import notification_manager, create_new_request_notification
+import os
 
 router = APIRouter(prefix="/items", tags=["Items"])
+
+# Check if notifications are enabled
+ENABLE_NOTIFICATIONS = os.getenv("ENABLE_NOTIFICATIONS", "true").lower() == "true"
 
 @router.get("", response_model=ItemListResponse)
 def get_items(
@@ -76,7 +81,7 @@ def get_items(
     )
 
 @router.post("/{item_id}/request", status_code=201)
-def request_item(
+async def request_item(
     item_id: int,
     request_data: RequestCreate,
     db: Session = Depends(get_db),
@@ -127,6 +132,25 @@ def request_item(
     db.add(new_request)
     db.commit()
     db.refresh(new_request)
+    
+    # Send real-time notification to item owner
+    if ENABLE_NOTIFICATIONS:
+        try:
+            notification = create_new_request_notification(
+                request_id=new_request.id,
+                item_name=item.name,
+                requester_name=current_user.name,
+                requested_qty=request_data.requested_qty,
+                unit=item.unit
+            )
+            
+            await notification_manager.send_personal_notification(item.owner_id, notification)
+            
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send notification: {e}")
     
     response_data = {
         "request_id": new_request.id,

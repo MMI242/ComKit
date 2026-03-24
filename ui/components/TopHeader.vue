@@ -3,6 +3,9 @@
     <div class="flex justify-between items-center h-12 px-4">
       <h1 class="text-lg font-bold text-primary-700">ComKit</h1>
       <div class="flex items-center space-x-4">
+        <!-- Notification Dropdown -->
+        <NotificationDropdown />
+        
         <span class="text-sm text-gray-700">Welcome, {{ user.name }}</span>
         <div class="relative">
           <button @click="showMenu = !showMenu" class="p-2 text-gray-700 hover:bg-gray-100 rounded">
@@ -29,6 +32,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import NotificationDropdown from './NotificationDropdown.vue'
 
 interface Props {
   user: {

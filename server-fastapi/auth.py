@@ -8,6 +8,8 @@ import os
 
 from database import get_db
 from models import User
+from fastapi import WebSocket, Query
+from typing import Optional
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this")
 ALGORITHM = "HS256"
@@ -64,3 +66,31 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="User not found")
     
     return user
+
+async def get_current_user_websocket(
+    websocket: WebSocket,
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+) -> User:
+    """Authenticate WebSocket connection using query parameter token"""
+    if not token:
+        await websocket.close(code=4001, reason="Missing authentication token")
+        raise HTTPException(status_code=401, detail="Missing authentication token")
+    
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("user_id")
+        
+        if user_id is None:
+            await websocket.close(code=4001, reason="Invalid token")
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            await websocket.close(code=4001, reason="User not found")
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        return user
+    except JWTError:
+        await websocket.close(code=4001, reason="Invalid or expired token")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")

@@ -30,13 +30,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
         </svg>
         <span>MyPage</span>
-        <span v-if="incomingRequestsCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ incomingRequestsCount }}</span>
+        <span v-if="displayCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ displayCount }}</span>
       </NuxtLink>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useNotifications } from '~~/services/notifications'
 
 interface Props {
   incomingRequestsCount?: number
@@ -46,6 +48,30 @@ const props = withDefaults(defineProps<Props>(), {
   incomingRequestsCount: 0
 })
 
-// For notification count, perhaps pass as prop or use composable
-// Since it's in mypage, maybe compute here, but for simplicity, assume 0 or pass from parent
+const { unreadCount } = useNotifications()
+
+// Check if notifications are enabled
+const isNotificationsEnabled = computed(() => {
+  // Check runtime config or environment
+  if (process.client && typeof window !== 'undefined') {
+    // @ts-ignore
+    const config = window.__NUXT__?.config?.public
+    if (config?.enableNotifications !== undefined) {
+      return config.enableNotifications === true
+    }
+  }
+  
+  // Check for NUXT_PUBLIC_ENABLE_NOTIFICATIONS environment variable
+  if (process.env.NUXT_PUBLIC_ENABLE_NOTIFICATIONS !== undefined) {
+    return process.env.NUXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true'
+  }
+  
+  // Fallback to enabled by default
+  return true
+})
+
+// Use notification unread count, fallback to prop for backward compatibility
+const displayCount = computed(() => {
+  return isNotificationsEnabled.value ? (unreadCount.value || props.incomingRequestsCount) : 0
+})
 </script>
