@@ -4,6 +4,15 @@
       <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Tentang ComKit</h1>
         
+        <!-- Hero Image -->
+        <div class="mb-8 mt-8 pt-8">
+          <img 
+            src="/images/img.png"
+            alt="ComKit - Berbagi Peralatan Dapur" 
+            class="w-full object-cover"
+          />
+        </div>
+        
         <div class="prose max-w-none">
           <section class="mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Apa itu ComKit?</h2>
@@ -80,13 +89,23 @@
               </div>
               
               <div class="bg-gray-50 p-4 rounded-lg">
-                <h3 class="font-semibold text-gray-800 mb-2">⭐ Rating & Ulasan</h3>
-                <p class="text-gray-600 text-sm">Bangun kepercayaan komunitas melalui sistem rating dan ulasan pengguna.</p>
+                <h3 class="font-semibold text-gray-800 mb-2">📍 Lokasi Terdekat</h3>
+                <p class="text-gray-600 text-sm">Temukan peralatan dapur dari tetangga terdekat. Hemat waktu dan tenaga dengan akses mudah ke barang yang Anda butuhkan tanpa harus pergi jauh.</p>
               </div>
               
               <div class="bg-gray-50 p-4 rounded-lg">
                 <h3 class="font-semibold text-gray-800 mb-2">💬 Pesan Langsung</h3>
                 <p class="text-gray-600 text-sm">Komunikasi langsung dengan pemilik peralatan untuk koordinasi yang mudah.</p>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">🤖 AI Resep</h3>
+                <p class="text-gray-600 text-sm">Buat resep makanan dari bahan terbatas yang tersedia dengan bantuan AI yang cerdas. Hemat waktu dan dapatkan inspirasi masakan baru.</p>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">📱 Notifikasi</h3>
+                <p class="text-gray-600 text-sm">Dapatkan pemberitahuan tentang ketersediaan peralatan dan status peminjaman secara real-time.</p>
               </div>
             </div>
           </section>
