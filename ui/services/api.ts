@@ -103,6 +103,7 @@ export interface RecipeResponse {
     raw_text?: string
   }
   generated_at: string
+  model: string  // Add model field to track which model was used
 }
 
 export interface Pagination {

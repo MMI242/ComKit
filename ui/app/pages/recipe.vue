@@ -81,6 +81,12 @@
             </div>
           </div>
 
+          <!-- AI Model Info -->
+          <div class="bg-blue-50 p-3 rounded-lg mb-6">
+            <div class="text-sm text-blue-500">AI Model Used</div>
+            <div class="font-medium text-blue-900">{{ model }}</div>
+          </div>
+
           <!-- Ingredients -->
           <div class="mb-6">
             <h4 class="text-lg font-medium text-gray-900 mb-3">{{ $t('recipe.ingredients_title') }}</h4>
@@ -176,6 +182,7 @@ onMounted(async () => {
 // State
 const ingredients = ref('')
 const recipe = ref<RecipeResponse['recipe'] | null>(null)
+const model = ref<string>('')
 const generatedAt = ref<string>('')
 const isLoading = ref(false)
 const error = ref('')
@@ -199,6 +206,7 @@ const generateRecipe = async () => {
     })
     
     recipe.value = response.recipe
+    model.value = response.model
     generatedAt.value = response.generated_at
   } catch (err: any) {
     console.error('Error generating recipe:', err)

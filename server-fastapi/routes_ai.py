@@ -220,7 +220,8 @@ async def generate_recipe(
             
             return RecipeResponse(
                 recipe=recipe_data,
-                generated_at=datetime.utcnow()
+                generated_at=datetime.utcnow(),
+                model=result.get("model", "unknown")
             )
         else:
             # Request failed

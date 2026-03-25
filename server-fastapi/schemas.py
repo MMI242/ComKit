@@ -160,3 +160,4 @@ class RecipeRequest(BaseModel):
 class RecipeResponse(BaseModel):
     recipe: dict
     generated_at: datetime
+    model: str  # Add model field to track which model was used
