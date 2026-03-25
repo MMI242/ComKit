@@ -5,12 +5,12 @@
     <!-- Main Content -->
     <main class="pt-12 pb-16 px-4">
       <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">AI Recipe Generator</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ $t('recipe.title') }}</h2>
 
         <!-- Input Section -->
         <div class="mb-6">
           <label for="ingredients" class="block text-sm font-medium text-gray-700 mb-2">
-            Ingredients you have:
+            {{ $t('recipe.ingredients_label') }}
           </label>
           <textarea
             id="ingredients"
@@ -18,11 +18,11 @@
             data-testid="ingredients-textarea"
             rows="4"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Enter ingredients you have, separated by commas. Example: tomato, onion, garlic, pasta, olive oil"
+            :placeholder="$t('recipe.ingredients_placeholder')"
             :disabled="isLoading"
           ></textarea>
           <p class="mt-1 text-sm text-gray-500">
-            Enter the ingredients you have available and AI will generate a recipe for you.
+            {{ $t('recipe.ingredients_help') }}
           </p>
         </div>
 
@@ -40,7 +40,7 @@
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </span>
-            {{ isLoading ? 'Generating Recipe...' : 'Generate Recipe' }}
+            {{ isLoading ? $t('recipe.generating_recipe') : $t('recipe.generate_recipe') }}
           </button>
         </div>
 
@@ -53,7 +53,7 @@
               </svg>
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">Error</h3>
+              <h3 class="text-sm font-medium text-red-800">{{ $t('recipe.error') }}</h3>
               <div class="mt-2 text-sm text-red-700">
                 {{ error }}
               </div>
@@ -68,22 +68,22 @@
           <!-- Recipe Meta Info -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="bg-gray-50 p-3 rounded-lg">
-              <div class="text-sm text-gray-500">Cooking Time</div>
+              <div class="text-sm text-gray-500">{{ $t('recipe.cooking_time') }}</div>
               <div data-testid="recipe-cooking-time" class="font-medium text-gray-900">{{ recipe.cooking_time }} minutes</div>
             </div>
             <div class="bg-gray-50 p-3 rounded-lg">
-              <div class="text-sm text-gray-500">Servings</div>
+              <div class="text-sm text-gray-500">{{ $t('recipe.servings') }}</div>
               <div data-testid="recipe-servings" class="font-medium text-gray-900">{{ recipe.servings }} servings</div>
             </div>
             <div class="bg-gray-50 p-3 rounded-lg">
-              <div class="text-sm text-gray-500">Difficulty</div>
+              <div class="text-sm text-gray-500">{{ $t('recipe.difficulty') }}</div>
               <div data-testid="recipe-difficulty" class="font-medium text-gray-900 capitalize">{{ recipe.difficulty }}</div>
             </div>
           </div>
 
           <!-- Ingredients -->
           <div class="mb-6">
-            <h4 class="text-lg font-medium text-gray-900 mb-3">Ingredients:</h4>
+            <h4 class="text-lg font-medium text-gray-900 mb-3">{{ $t('recipe.ingredients_title') }}</h4>
             <ul class="list-disc list-inside space-y-1">
               <li v-for="ingredient in recipe.ingredients" :key="ingredient" data-testid="recipe-ingredient" class="text-gray-700">
                 {{ ingredient }}
@@ -93,7 +93,7 @@
 
           <!-- Instructions -->
           <div class="mb-6">
-            <h4 class="text-lg font-medium text-gray-900 mb-3">Instructions:</h4>
+            <h4 class="text-lg font-medium text-gray-900 mb-3">{{ $t('recipe.instructions') }}</h4>
             <ol class="list-decimal list-inside space-y-2">
               <li v-for="(instruction, index) in recipe.instructions" :key="index" data-testid="recipe-instruction" class="text-gray-700">
                 {{ instruction }}
@@ -103,7 +103,7 @@
 
           <!-- Raw Text (fallback) -->
           <div v-if="recipe.raw_text" class="mb-6">
-            <h4 class="text-lg font-medium text-gray-900 mb-3">Additional Information:</h4>
+            <h4 class="text-lg font-medium text-gray-900 mb-3">{{ $t('recipe.additional_info') }}</h4>
             <div class="bg-gray-50 p-4 rounded-lg">
               <pre class="whitespace-pre-wrap text-gray-700">{{ recipe.raw_text }}</pre>
             </div>
@@ -111,7 +111,7 @@
 
           <!-- Generated At -->
           <div data-testid="generated-at" class="text-sm text-gray-500 text-right">
-            Generated at: {{ generatedAt ? new Date(generatedAt).toLocaleString() : '' }}
+            {{ $t('recipe.generated_at') }} {{ generatedAt ? new Date(generatedAt).toLocaleString() : '' }}
           </div>
         </div>
 
@@ -122,7 +122,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            AI is generating your recipe...
+            {{ $t('recipe.ai_generating') }}
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ const isAuthenticating = ref(false)
 // Methods
 const generateRecipe = async () => {
   if (!ingredients.value.trim()) {
-    error.value = 'Please enter some ingredients'
+    error.value = $t('recipe.please_enter_ingredients')
     return
   }
 
@@ -202,7 +202,7 @@ const generateRecipe = async () => {
     generatedAt.value = response.generated_at
   } catch (err: any) {
     console.error('Error generating recipe:', err)
-    error.value = err.detail || 'Failed to generate recipe. Please try again.'
+    error.value = err.detail || $t('recipe.failed_to_generate')
   } finally {
     isLoading.value = false
   }

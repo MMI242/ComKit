@@ -14,9 +14,9 @@
             </svg>
           </div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-500 bg-clip-text text-transparent">
-            Join ComKit
+            {{ $t('auth.register_title') }}
           </h1>
-          <p class="mt-2 text-gray-600">Start sharing kitchen items with your community</p>
+          <p class="mt-2 text-gray-600">{{ $t('auth.register_subtitle') }}</p>
         </div>
 
         <!-- Form -->
@@ -24,7 +24,7 @@
           <!-- Name -->
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
+              {{ $t('auth.full_name') }}
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -39,7 +39,7 @@
                 type="text"
                 required
                 class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
-                placeholder="John Doe"
+                :placeholder="$t('auth.full_name')"
               />
             </div>
           </div>
@@ -152,9 +152,9 @@
             <div class="ml-3 text-sm">
               <label for="agree-terms" class="text-gray-600">
                 I agree to the
-                <NuxtLink to="/terms" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Terms and Conditions</NuxtLink>
+                <NuxtLink :to="termsPath" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Terms and Conditions</NuxtLink>
                 and
-                <NuxtLink to="/terms" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Privacy Policy</NuxtLink>
+                <NuxtLink :to="termsPath" class="text-primary-100 hover:text-primary-200 font-medium" target="_blank">Privacy Policy</NuxtLink>
               </label>
             </div>
           </div>
@@ -209,12 +209,12 @@
         <div class="mt-8 text-center">
           <p class="text-sm text-gray-600">
             Already have an account?
-            <NuxtLink to="/login" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
+            <NuxtLink :to="loginPath" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
               Sign in here
             </NuxtLink>
           </p>
           <p class="text-sm text-gray-600 mt-2">
-            <NuxtLink to="/about" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
+            <NuxtLink :to="aboutPath" class="font-medium text-primary-100 hover:text-primary-200 transition-colors">
               Learn more about ComKit
             </NuxtLink>
           </p>
@@ -225,10 +225,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth } from '~~/composables/useAuth'
 
 import guestMiddleware from "~~/middleware/guest.client"
+
+// Use locale for i18n-aware navigation
+const { locale } = useI18n()
+
+// Generate locale-aware paths
+const loginPath = computed(() => locale.value === 'en' ? '/login' : `/${locale.value}/login`)
+const termsPath = computed(() => locale.value === 'en' ? '/terms' : `/${locale.value}/terms`)
+const aboutPath = computed(() => locale.value === 'en' ? '/about' : `/${locale.value}/about`)
 
 // Page metadata
 definePageMeta({

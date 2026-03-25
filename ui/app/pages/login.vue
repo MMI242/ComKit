@@ -3,16 +3,16 @@
     <div class="min-h-screen flex flex-col justify-center p-8 bg-white">
       <div class="w-full max-w-sm mx-auto space-y-8">
         <div>
-          <h2 class="text-3xl font-extrabold text-gray-900">Welcome back</h2>
+          <h2 class="text-3xl font-extrabold text-gray-900">{{ $t('auth.login_title') }}</h2>
           <p class="mt-2 text-sm text-gray-600">
-            Don't have an account?
-            <NuxtLink to="/register" class="font-medium text-primary-100 hover:text-primary-200">
-              Sign up now
+            {{ $t('auth.no_account') }}
+            <NuxtLink :to="registerPath" class="font-medium text-primary-100 hover:text-primary-200">
+              {{ $t('common.register') }}
             </NuxtLink>
           </p>
           <p class="mt-1 text-sm text-gray-600">
-            <NuxtLink to="/about" class="font-medium text-primary-100 hover:text-primary-200">
-              About ComKit
+            <NuxtLink :to="aboutPath" class="font-medium text-primary-100 hover:text-primary-200">
+              {{ $t('common.about') }} ComKit
             </NuxtLink>
           </p>
         </div>
@@ -20,19 +20,19 @@
         <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-4">
             <div>
-              <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+              <label for="username" class="block text-sm font-medium text-gray-700">{{ $t('auth.email') }}</label>
               <input 
                 id="username" 
                 v-model="form.username" 
                 type="text" 
                 required 
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-400 focus:border-primary-400" 
-                placeholder="Enter username" 
+                :placeholder="$t('auth.email')" 
                 :disabled="loading"
               />
             </div>
             <div>
-              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+              <label for="password" class="block text-sm font-medium text-gray-700">{{ $t('auth.password') }}</label>
               <input 
                 id="password" 
                 v-model="form.password" 
@@ -53,9 +53,9 @@
                 class="h-4 w-4 text-primary-400 border-gray-300 rounded" 
                 :disabled="loading"
               />
-              <span class="ml-2">Remember me</span>
+              <span class="ml-2">{{ $t('auth.remember_me') }}</span>
             </label>
-            <a href="#" class="text-sm font-medium text-primary-100 hover:text-primary-200">Forgot?</a>
+            <a href="#" class="text-sm font-medium text-primary-100 hover:text-primary-200">{{ $t('auth.forgot_password') }}</a>
           </div>
 
           <button 
@@ -63,7 +63,7 @@
             :disabled="loading" 
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-400 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ loading ? 'Signing in...' : 'Sign in to account' }}
+            {{ loading ? $t('common.loading') : $t('auth.login_title') }}
           </button>
         </form>
 
@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth } from '~~/composables/useAuth'
 
 import guestMiddleware from "~~/middleware/guest.client"
@@ -102,6 +102,13 @@ definePageMeta({
 
 // Use auth composable
 const { login, isLoading, error } = useAuth()
+
+// Use locale for i18n-aware navigation
+const { locale } = useI18n()
+
+// Generate locale-aware paths
+const registerPath = computed(() => locale.value === 'en' ? '/register' : `/${locale.value}/register`)
+const aboutPath = computed(() => locale.value === 'en' ? '/about' : `/${locale.value}/about`)
 
 // Local loading state for form inputs
 const loading = isLoading

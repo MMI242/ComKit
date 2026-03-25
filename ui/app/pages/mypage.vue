@@ -7,15 +7,15 @@
       <!-- Section Item Saya -->
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4 mt-5">
-          <h2 class="text-2xl font-bold text-gray-900">Item Saya</h2>
+          <h2 class="text-2xl font-bold text-gray-900">{{ $t('mypage.my_items') }}</h2>
           <button @click="showAddItemModal = true" class="inline-flex items-center justify-center bg-primary-600 text-white py-1 px-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 font-medium shadow-md text-sm">
             <Plus class="w-3 h-3 mr-1" />
-            Tambah Item Baru
+            {{ $t('mypage.add_new_item') }}
           </button>
         </div>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <div v-if="userItems.length === 0" class="text-center py-8">
-            <p class="text-gray-500">Belum ada item yang dibagikan.</p>
+            <p class="text-gray-500">{{ $t('mypage.no_items_shared') }}</p>
           </div>
           <ul v-if="userItems.length > 0" role="list" class="divide-y divide-gray-200">
             <li v-for="item in userItems" :key="item.id" class="px-6 py-4">
@@ -31,9 +31,9 @@
                     <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
                     <p class="text-sm text-gray-500">{{ item.description }}</p>
                     <p class="text-sm text-gray-500">
-                      Qty: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }} |
-                      Type: {{ item.type === 'borrow' ? 'Pinjam' : 'Bagikan' }} |
-                      Status: {{ item.status === 'available' ? 'Tersedia' : 'Dipinjam' }}
+                      {{ $t('mypage.qty') }}: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }} |
+                      {{ $t('mypage.type') }}: {{ item.type === 'borrow' ? $t('mypage.borrow') : $t('mypage.share') }} |
+                      {{ $t('mypage.status') }}: {{ item.status === 'available' ? $t('mypage.available') : $t('mypage.borrowed') }}
                     </p>
                   </div>
                 </div>
@@ -42,13 +42,13 @@
                     @click="editItem(item)"
                     class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
-                    Edit
+                    {{ $t('mypage.edit') }}
                   </button>
                   <button
                     @click="deleteItem(item.id)"
                     class="inline-flex items-center px-3 py-1 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
-                    Hapus
+                    {{ $t('mypage.delete') }}
                   </button>
                 </div>
               </div>
@@ -59,10 +59,10 @@
 
       <!-- Section Request Masuk -->
       <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Masuk</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('mypage.incoming_requests') }}</h2>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <div v-if="incomingRequests.length === 0" class="text-center py-8">
-            <p class="text-gray-500">Belum ada request masuk.</p>
+            <p class="text-gray-500">{{ $t('mypage.no_incoming_requests') }}</p>
           </div>
           <ul v-else role="list" class="divide-y divide-gray-200">
             <li v-for="request in incomingRequests" :key="request.id" class="px-6 py-4">
@@ -76,11 +76,11 @@
                   />
                   <div>
                     <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
-                    <p class="text-sm text-gray-500">Dari: {{ request.requester?.name }} ({{ request.requester?.username }})</p>
+                    <p class="text-sm text-gray-500">{{ $t('mypage.from') }}: {{ request.requester?.name }} ({{ request.requester?.username }})</p>
                     <p class="text-sm text-gray-500">
-                      Qty: {{ request.requested_qty }} {{ request.unit }} |
-                      Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                      Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
+                      {{ $t('mypage.qty') }}: {{ request.requested_qty }} {{ request.unit }} |
+                      {{ $t('mypage.date') }}: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
+                      {{ $t('mypage.status') }}: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
                     </p>
                   </div>
                 </div>
@@ -89,13 +89,13 @@
                     @click="openStatusModal(request, 'approved')"
                     class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                   >
-                    Approve
+                    {{ $t('mypage.approve') }}
                   </button>
                   <button
                     @click="openStatusModal(request, 'rejected')"
                     class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
-                    Reject
+                    {{ $t('mypage.reject') }}
                   </button>
                 </div>
                 <div class="flex space-x-2" v-else-if="request.status === 'approved'">
@@ -103,7 +103,7 @@
                     @click="openStatusModal(request, 'returned')"
                     class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Sudah Dikembalikan
+                    {{ $t('mypage.returned') }}
                   </button>
                 </div>
               </div>
@@ -114,10 +114,10 @@
 
       <!-- Section Request Saya -->
       <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Request Saya</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('mypage.my_requests') }}</h2>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <div v-if="outgoingRequests.length === 0" class="text-center py-8">
-            <p class="text-gray-500">Belum ada request yang dikirim.</p>
+            <p class="text-gray-500">{{ $t('mypage.no_outgoing_requests') }}</p>
           </div>
           <ul v-else role="list" class="divide-y divide-gray-200">
             <li v-for="request in outgoingRequests" :key="request.id" class="px-6 py-4">
@@ -131,11 +131,11 @@
                   />
                   <div>
                     <h3 class="text-lg font-medium text-gray-900">{{ request.item.name }}</h3>
-                    <p class="text-sm text-gray-500">Kepada: {{ request.owner?.name }} ({{ request.owner?.username }})</p>
+                    <p class="text-sm text-gray-500">{{ $t('mypage.to') }}: {{ request.owner?.name }} ({{ request.owner?.username }})</p>
                     <p class="text-sm text-gray-500">
-                      Qty: {{ request.requested_qty }} {{ request.unit }} |
-                      Tanggal: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
-                      Status: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
+                      {{ $t('mypage.qty') }}: {{ request.requested_qty }} {{ request.unit }} |
+                      {{ $t('mypage.date') }}: {{ formatDate(request.date_start) }} - {{ formatDate(request.date_end) }} |
+                      {{ $t('mypage.status') }}: <span :class="getStatusColor(request.status)">{{ getStatusActionText(request.status) }}</span>
                     </p>
                   </div>
                 </div>
@@ -144,7 +144,7 @@
                     @click="openStatusModal(request, 'cancelled')"
                     class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
-                    Cancel
+                    {{ $t('mypage.cancel') }}
                   </button>
                 </div>
               </div>
@@ -158,23 +158,22 @@
     <div v-if="showStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="cancelStatusUpdate">
       <div class="relative top-20 mx-auto p-5 border w-full max-w-md mx-4 shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Update Status</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $t('mypage.confirm_status_update') }}</h3>
           <p class="text-sm text-gray-500 mb-4">
-            Apakah Anda yakin ingin <b>{{ getStatusActionText(newStatus!) }}</b> request dari {{ selectedRequest?.requester?.name }} untuk item "{{ selectedRequest?.item.name }}"?
-            Tindakan ini tidak dapat dibatalkan.
+            {{ $t('mypage.confirm_status_message', { action: getStatusActionText(newStatus!), requester: selectedRequest?.requester?.name, item: selectedRequest?.item.name }) }}
           </p>
           <div class="flex justify-end space-x-3">
             <button
               @click="cancelStatusUpdate"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Batal
+              {{ $t('mypage.cancel') }}
             </button>
             <button
               @click="confirmStatusUpdate"
               class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Konfirmasi
+              {{ $t('common.confirm') }}
             </button>
           </div>
         </div>
@@ -185,7 +184,7 @@
     <div v-if="showAddItemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="closeItemModal">
       <div class="relative top-20 mx-auto p-5 border w-full max-w-md mx-4 shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ editingItem ? 'Edit Item' : 'Tambah Item Baru' }}</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ editingItem ? $t('mypage.edit_item') : $t('mypage.add_new_item_title') }}</h3>
           <form @submit.prevent="submitItemForm" class="space-y-4">
             <div>
               <label for="item-name" class="block text-sm font-medium text-gray-700">Nama Item</label>
@@ -296,7 +295,7 @@
                 @click="closeItemModal"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
-                Batal
+                {{ $t('mypage.cancel') }}
               </button>
               <button
                 type="submit"
@@ -325,7 +324,7 @@
               @click="showDeleteModal = false"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Batal
+              {{ $t('mypage.cancel') }}
             </button>
             <button
               @click="confirmDeleteItem"
@@ -489,32 +488,32 @@ const handlePhotoChange = (event: Event) => {
 const submitItemForm = async () => {
   // Frontend validation before API call
   if (!itemForm.value.name.trim()) {
-    alert('Nama item harus diisi')
+    alert($t('mypage.item_name_required'))
     return
   }
   
   if (!itemForm.value.description.trim()) {
-    alert('Deskripsi item harus diisi')
+    alert($t('mypage.description_required'))
     return
   }
   
   if (!itemForm.value.qty || itemForm.value.qty <= 0) {
-    alert('Quantity harus lebih besar dari 0')
+    alert($t('mypage.quantity_greater_zero'))
     return
   }
   
   if (!itemForm.value.unit.trim()) {
-    alert('Unit harus diisi')
+    alert($t('mypage.unit_required'))
     return
   }
   
   if (!['borrow', 'share'].includes(itemForm.value.type)) {
-    alert('Tipe item harus dipilih')
+    alert($t('mypage.type_required'))
     return
   }
   
   if (!['available', 'borrowed'].includes(itemForm.value.status)) {
-    alert('Status item harus dipilih')
+    alert($t('mypage.status_required'))
     return
   }
 
@@ -545,15 +544,15 @@ const submitItemForm = async () => {
     // Show more specific error messages
     if (error.status === 400) {
       // Try to extract the detail message from different possible formats
-      const detail = error.detail || error.message || error.error || 'Data tidak valid'
-      alert(`Gagal menyimpan item: ${detail}`)
+      const detail = error.detail || error.message || error.error || $t('mypage.invalid_data')
+      alert($t('mypage.failed_to_save_item', { error: detail }))
     } else if (error.status === 401) {
-      alert('Sesi login telah berakhir. Silakan login kembali.')
+      alert($t('mypage.session_expired'))
       await navigateTo('/login')
     } else if (error.status === 403) {
-      alert('Anda tidak memiliki izin untuk melakukan tindakan ini.')
+      alert($t('mypage.no_permission'))
     } else {
-      alert('Gagal menyimpan item. Silakan coba lagi.')
+      alert($t('mypage.failed_to_save'))
     }
   } finally {
     isSubmittingItem.value = false
@@ -579,7 +578,7 @@ const confirmDeleteItem = async () => {
     itemToDelete.value = null
   } catch (error) {
     console.error('Failed to delete item:', error)
-    alert('Gagal menghapus item. Silakan coba lagi.')
+    alert($t('mypage.failed_to_delete'))
   } finally {
     isDeletingItem.value = false
   }
@@ -597,7 +596,7 @@ const updateRequestStatus = async (requestId: number, status: RequestStatusUpdat
     await Promise.all([loadRequests(), loadUserItems()])
   } catch (error) {
     console.error('Failed to update request status:', error)
-    alert('Gagal mengupdate status request. Silakan coba lagi.')
+    alert($t('mypage.failed_to_update_status'))
   }
 }
 
@@ -633,10 +632,10 @@ const getStatusColor = (status: string) => {
 
 const getStatusActionText = (status: string) => {
   switch (status) {
-    case 'approved': return 'menyetujui'
-    case 'rejected': return 'menolak'
-    case 'returned': return 'menandai sebagai dikembalikan'
-    case 'cancelled': return 'membatalkan'
+    case 'approved': return $t('mypage.approve_action')
+    case 'rejected': return $t('mypage.reject_action')
+    case 'returned': return $t('mypage.return_action')
+    case 'cancelled': return $t('mypage.cancel_action')
     default: return 'mengupdate'
   }
 }

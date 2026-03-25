@@ -1,0 +1,78 @@
+{
+  "common": {
+    "login": "Masuk",
+    "register": "Daftar",
+    "logout": "Keluar",
+    "dashboard": "Dashboard",
+    "profile": "Profil",
+    "settings": "Pengaturan",
+    "about": "Tentang",
+    "terms": "Syarat & Ketentuan",
+    "home": "Beranda",
+    "search": "Cari",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "add": "Tambah",
+    "loading": "Memuat...",
+    "error": "Error",
+    "success": "Berhasil",
+    "confirm": "Konfirmasi",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "submit": "Kirim",
+    "close": "Tutup"
+  },
+  "auth": {
+    "login_title": "Selamat Datang Kembali",
+    "login_subtitle": "Masuk ke akun Anda",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "forgot_password": "Lupa Kata Sandi?",
+    "remember_me": "Ingat saya",
+    "no_account": "Belum punya akun?",
+    "register_title": "Buat Akun",
+    "register_subtitle": "Daftar untuk memulai",
+    "full_name": "Nama Lengkap",
+    "confirm_password": "Konfirmasi Kata Sandi",
+    "already_have_account": "Sudah punya akun?"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Selamat datang kembali!",
+    "recent_activity": "Aktivitas Terkini",
+    "quick_actions": "Aksi Cepat",
+    "statistics": "Statistik",
+    "total_items": "Total Item",
+    "total_users": "Total Pengguna",
+    "total_requests": "Total Permintaan"
+  },
+  "profile": {
+    "title": "Profil Saya",
+    "personal_info": "Informasi Pribadi",
+    "account_settings": "Pengaturan Akun",
+    "notifications": "Notifikasi",
+    "privacy": "Privasi",
+    "security": "Keamanan"
+  },
+  "about": {
+    "title": "Tentang Kami",
+    "description": "Pelajari lebih lanjut tentang aplikasi kami",
+    "mission": "Misi Kami",
+    "vision": "Visi Kami",
+    "team": "Tim Kami"
+  },
+  "terms": {
+    "title": "Syarat & Ketentuan",
+    "last_updated": "Terakhir diperbarui",
+    "acceptance": "Dengan menggunakan layanan ini, Anda menyetujui syarat ini"
+  },
+  "errors": {
+    "404": "Halaman tidak ditemukan",
+    "500": "Error server",
+    "network_error": "Error jaringan",
+    "unauthorized": "Akses tidak sah",
+    "validation_error": "Error validasi"
+  }
+}

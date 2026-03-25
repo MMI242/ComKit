@@ -13,7 +13,7 @@
                 v-model="searchQuery"
                 @input="handleSearch"
                 type="text"
-                placeholder="Cari item..."
+                :placeholder="$t('dashboard.search_placeholder')"
                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
@@ -26,7 +26,7 @@
                   value="all"
                   class="mr-2"
                 />
-                <span class="text-sm">All</span>
+                <span class="text-sm">{{ $t('dashboard.filter_all') }}</span>
               </label>
               <label class="flex items-center">
                 <input
@@ -36,7 +36,7 @@
                   value="borrow"
                   class="mr-2"
                 />
-                <span class="text-sm">Borrow</span>
+                <span class="text-sm">{{ $t('dashboard.filter_borrow') }}</span>
               </label>
               <label class="flex items-center">
                 <input
@@ -46,7 +46,7 @@
                   value="share"
                   class="mr-2"
                 />
-                <span class="text-sm">Share</span>
+                <span class="text-sm">{{ $t('dashboard.filter_share') }}</span>
               </label>
             </div>
           </div>
@@ -61,11 +61,11 @@
         <div class="space-y-4">
           <div v-if="loading" class="text-center py-8">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <p class="mt-2 text-gray-600">Loading items...</p>
+            <p class="text-gray-600">{{ $t('dashboard.loading_items') }}</p>
           </div>
 
           <div v-else-if="items.length === 0" class="text-center py-8 bg-white rounded-lg shadow">
-            <p class="text-gray-600">No items found.</p>
+            <p class="text-gray-600">{{ $t('dashboard.no_items_found') }}</p>
           </div>
 
           <div v-else>
@@ -84,20 +84,20 @@
                   />
                   <div class="flex-1">
                     <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
-                    <p class="text-sm text-gray-600">Owner: {{ item.owner.name }}</p>
+                    <p class="text-sm text-gray-600">{{ $t('dashboard.owner') }}: {{ item.owner.name }}</p>
                     <p class="text-sm text-gray-600">
-                      Available: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }}
+                      {{ $t('dashboard.available') }}: {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }}
                     </p>
                     <span class="inline-flex items-center px-2.5 py-0.5 mt-3 rounded-full text-xs font-medium"
                           :class="item.type === 'borrow' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'">
-                      {{ item.type === 'borrow' ? 'Pinjam' : 'Bagikan' }}
+                      {{ item.type === 'borrow' ? $t('dashboard.filter_borrow') : $t('dashboard.filter_share') }}
                     </span>
                   </div>
                   <button
                     @click="toggleExpand(item.id)"
                     class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
-                    Details
+                    {{ $t('dashboard.details') }}
                   </button>
                 </div>
               </div>
@@ -116,19 +116,19 @@
                   <h3 class="text-xl font-bold text-gray-900">{{ item.name }}</h3>
                   <p class="text-gray-700">{{ item.description }}</p>
                   <p class="text-sm text-gray-600">
-                    <strong>Available:</strong> {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }}
+                    <strong>{{ $t('dashboard.available') }}:</strong> {{ item.remaining_qty }}/{{ item.qty }} {{ item.unit }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    <strong>Owner:</strong> {{ item.owner.name }}
+                    <strong>{{ $t('dashboard.owner') }}:</strong> {{ item.owner.name }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    <strong>Address:</strong> {{ item.owner.address }}
+                    <strong>{{ $t('dashboard.address') }}:</strong> {{ item.owner.address }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    <strong>Type:</strong> {{ item.type }}
+                    <strong>{{ $t('dashboard.type') }}:</strong> {{ item.type }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    <strong>Status:</strong>
+                    <strong>{{ $t('dashboard.status') }}:</strong>
                     <span :class="item.status === 'available' ? 'text-green-600' : 'text-red-600'">
                       {{ item.status }}
                     </span>
@@ -141,13 +141,13 @@
                     @click="openRequestForm(item)"
                     class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    Request Item
+                    {{ $t('dashboard.request_item') }}
                   </button>
                   <button
                     @click="toggleExpand(item.id)"
                     class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
-                    Collapse
+                    {{ $t('dashboard.collapse') }}
                   </button>
                 </div>
               </div>
@@ -158,8 +158,7 @@
         <!-- Pagination -->
         <div v-if="pagination.total_pages > 1" class="mt-6 flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
           <div class="flex items-center text-sm text-gray-700">
-            <span>Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
-            <span class="ml-2">({{ pagination.total_items }} total items)</span>
+            <span>{{ $t('dashboard.page_info', { current: pagination.current_page, total: pagination.total_pages, items: pagination.total_items }) }}</span>
           </div>
           <div class="flex space-x-2">
             <button
@@ -167,14 +166,14 @@
               :disabled="pagination.current_page === 1"
               class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {{ $t('common.previous') }}
             </button>
             <button
               @click="goToPage(pagination.current_page + 1)"
               :disabled="pagination.current_page === pagination.total_pages"
               class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {{ $t('common.next') }}
             </button>
           </div>
         </div>
@@ -184,7 +183,7 @@
     <!-- Request Form Modal -->
     <div v-if="showRequestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-bold mb-4">Request Item: {{ selectedItem?.name }}</h3>
+        <h3 class="text-lg font-bold mb-4">{{ $t('dashboard.request_modal_title', { name: selectedItem?.name }) }}</h3>
 
         <!-- Error Message -->
         <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
@@ -193,7 +192,7 @@
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('dashboard.quantity') }}</label>
             <input
               v-model.number="requestForm.requested_qty"
               type="number"
@@ -201,11 +200,11 @@
               :max="selectedItem?.remaining_qty"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
             />
-            <p class="text-xs text-gray-500 mt-1">Max available: {{ selectedItem?.remaining_qty }} {{ selectedItem?.unit }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ $t('dashboard.max_available', { qty: selectedItem?.remaining_qty, unit: selectedItem?.unit }) }}</p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('dashboard.start_date') }}</label>
             <input
               v-model="requestForm.date_start"
               type="date"
@@ -215,7 +214,7 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ selectedItem?.type === 'borrow' ? 'End Date' : 'Pickup Date' }}
+              {{ selectedItem?.type === 'borrow' ? $t('dashboard.end_date') : $t('dashboard.pickup_date') }}
             </label>
             <input
               v-model="requestForm.date_end"
@@ -231,13 +230,13 @@
             :disabled="submittingRequest"
             class="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
           >
-            {{ submittingRequest ? 'Submitting...' : 'Send Request' }}
+            {{ submittingRequest ? $t('dashboard.submitting') : $t('dashboard.send_request') }}
           </button>
           <button
             @click="closeRequestForm"
             class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </div>
@@ -262,7 +261,7 @@ const config = useRuntimeConfig()
 
 // Page metadata
 definePageMeta({
-  title: 'Homepage - ComKit',
+  title: 'Dashboard - ComKit',
   description: 'Community items feed'
 })
 
@@ -310,7 +309,7 @@ const loadItems = async (page: number = 1, search: string = '', type: string = '
     
   } catch (err: any) {
     console.error('Error loading items:', err)
-    error.value = err.detail || 'Failed to load items'
+    error.value = $t('errors.failed_to_load_items')
   } finally {
     loading.value = false
   }
@@ -361,13 +360,13 @@ const submitRequest = async (): Promise<void> => {
   
   // Validate form data
   if (!requestForm.value.date_start || !requestForm.value.date_end) {
-    error.value = 'Please fill in both start and end dates'
+    error.value = $t('errors.please_fill_dates')
     return
   }
   
   // Validate that end date is after start date
   if (requestForm.value.date_end < requestForm.value.date_start) {
-    error.value = 'End date must be after start date'
+    error.value = $t('errors.end_date_after_start')
     return
   }
   
@@ -389,7 +388,7 @@ const submitRequest = async (): Promise<void> => {
     
   } catch (err: any) {
     console.error('Error submitting request:', err)
-    error.value = err.detail || 'Failed to submit request'
+    error.value = $t('errors.failed_to_submit_request')
   } finally {
     submittingRequest.value = false
   }
