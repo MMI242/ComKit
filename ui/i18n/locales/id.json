@@ -36,6 +36,7 @@
   },
   "auth": {
     "login_title": "Selamat Datang Kembali",
+    "login_button": "Masuk",
     "login_subtitle": "Masuk ke akun Anda",
     "email": "Email",
     "password": "Kata Sandi",

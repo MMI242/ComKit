@@ -21,6 +21,9 @@
 
         <!-- Form -->
         <form @submit.prevent="handleRegister" class="space-y-5">
+          <!-- Language Switcher -->
+          <LanguageSwitcher />
+
           <!-- Name -->
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
@@ -227,6 +230,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth } from '~~/composables/useAuth'
+import LanguageSwitcher from '~~/components/LanguageSwitcher.vue'
 
 import guestMiddleware from "~~/middleware/guest.client"
 
@@ -309,9 +313,10 @@ const handleRegister = async (): Promise<void> => {
       password: form.value.password
     })
     
-    // Registration successful - redirect to dashboard (user is auto-logged in)
+    // Registration successful - redirect to dashboard with current language (user is auto-logged in)
     success.value = 'Account created successfully! Redirecting to dashboard...'
-    await navigateTo('/dashboard')
+    const dashboardPath = locale.value === 'en' ? '/dashboard' : `/${locale.value}/dashboard`
+    await navigateTo(dashboardPath)
   } catch (err: any) {
     // Error is already handled by the auth composable
     console.error('Registration error:', err)

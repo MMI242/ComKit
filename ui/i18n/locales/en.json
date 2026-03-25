@@ -36,6 +36,7 @@
   },
   "auth": {
     "login_title": "Welcome Back",
+    "login_button": "Login",
     "login_subtitle": "Sign in to your account",
     "email": "Email",
     "password": "Password",

@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen mobile-container">
     <div class="min-h-screen flex flex-col justify-center p-8 bg-white">
+      
       <div class="w-full max-w-sm mx-auto space-y-8">
         <div>
           <h2 class="text-3xl font-extrabold text-gray-900">{{ $t('auth.login_title') }}</h2>
@@ -18,6 +19,11 @@
         </div>
 
         <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+          <!-- Language Switcher -->
+          <div class="flex justify-end">
+            <LanguageSwitcher />
+          </div>
+
           <div class="space-y-4">
             <div>
               <label for="username" class="block text-sm font-medium text-gray-700">{{ $t('auth.email') }}</label>
@@ -63,7 +69,7 @@
             :disabled="loading" 
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-400 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ loading ? $t('common.loading') : $t('auth.login_title') }}
+            {{ loading ? $t('common.loading') : $t('auth.login_button') }}
           </button>
         </form>
 
@@ -90,6 +96,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth } from '~~/composables/useAuth'
+import LanguageSwitcher from '~~/components/LanguageSwitcher.vue'
 
 import guestMiddleware from "~~/middleware/guest.client"
 
@@ -136,8 +143,9 @@ const handleLogin = async (): Promise<void> => {
   try {
     await login(form.value.username, form.value.password, form.value.rememberMe)
     
-    // Redirect to dashboard on successful login
-    await navigateTo('/dashboard')
+    // Redirect to dashboard with current language
+    const dashboardPath = locale.value === 'en' ? '/dashboard' : `/${locale.value}/dashboard`
+    await navigateTo(dashboardPath)
   } catch (err) {
     // Error is already handled by the auth composable
     console.error('Login failed:', err)
