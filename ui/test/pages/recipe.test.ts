@@ -5,6 +5,14 @@ import { mount } from '@vue/test-utils'
 import Recipe from '../../app/pages/recipe.vue'
 import { mockFetch } from '../setup'
 
+// Mock NotificationDropdown component
+vi.mock('../../components/NotificationDropdown.vue', () => ({
+  default: {
+    name: 'NotificationDropdown',
+    template: '<div><slot /></div>'
+  }
+}))
+
 // Mock useAuth composable
 vi.mock('~/composables/useAuth', () => ({
   useAuth: () => ({
@@ -13,7 +21,8 @@ vi.mock('~/composables/useAuth', () => ({
     isLoading: { value: false },
     error: { value: '' },
     isAuthenticated: { value: true },
-    currentUser: { value: { id: 1, username: 'testuser' } }
+    currentUser: { value: { id: 1, username: 'testuser', name: 'Test User' } },
+    user: { value: { id: 1, username: 'testuser', name: 'Test User' } }
   })
 }))
 

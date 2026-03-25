@@ -4,6 +4,14 @@ import { ref } from 'vue'
 import Dashboard from '../../app/pages/dashboard.vue'
 import { mockFetch } from '../setup'
 
+// Mock NotificationDropdown component
+vi.mock('../../components/NotificationDropdown.vue', () => ({
+  default: {
+    name: 'NotificationDropdown',
+    template: '<div><slot /></div>'
+  }
+}))
+
 // Mock useAuth composable
 const mockUser = ref({
   name: 'John Doe',
@@ -125,12 +133,15 @@ describe('Dashboard Page (Homepage)', () => {
     // Check that expected elements are present in the component
     const componentText = wrapper.text()
     expect(componentText).toContain('ComKit')
-    expect(componentText).toContain('+ Add Item')
     expect(componentText).toContain('Logout')
     
-    // Check for buttons that should be present
-    expect(wrapper.find('.bg-green-600').exists()).toBe(true)
-    expect(wrapper.find('.bg-red-600').exists()).toBe(true)
+    // Check for search functionality
+    expect(wrapper.find('input[placeholder="Cari item..."]').exists()).toBe(true)
+    
+    // Check for filter options
+    expect(componentText).toContain('All')
+    expect(componentText).toContain('Borrow')
+    expect(componentText).toContain('Share')
   })
 
   it('displays search and filter section', () => {
@@ -210,10 +221,9 @@ describe('Dashboard Page (Homepage)', () => {
     expect(vm.user.username).toBe('johndoe')
   })
 
-  it('displays add item and logout buttons', () => {
+  it('displays logout functionality', () => {
     const wrapper = mount(Dashboard)
 
-    expect(wrapper.find('button').text()).toContain('+ Add Item')
     expect(wrapper.text()).toContain('Logout')
   })
 

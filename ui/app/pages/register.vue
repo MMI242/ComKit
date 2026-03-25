@@ -42,7 +42,7 @@
                 type="text"
                 required
                 class="pl-10 w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm"
-                :placeholder="$t('auth.full_name')"
+                :placeholder="$t('auth.full_name_placeholder')"
               />
             </div>
           </div>

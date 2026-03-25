@@ -22,6 +22,7 @@ export default defineConfig(() => {
         '@@/': path.resolve(process.cwd(), './'),
         '~/': path.resolve(process.cwd(), './'),
         '@/': path.resolve(process.cwd(), './'),
+        '#app': path.resolve(process.cwd(), './node_modules/nuxt/dist/app')
       }
     },
     test: {

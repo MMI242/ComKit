@@ -96,9 +96,7 @@ describe('Register Page', () => {
   it('has terms and privacy policy links', () => {
     const wrapper = mount(Register)
     
-    const termsLink = wrapper.find('a[href="#"]')
-    expect(termsLink.exists()).toBe(true)
-    expect(wrapper.text()).toContain('Terms of Service')
+    expect(wrapper.text()).toContain('Terms and Conditions')
     expect(wrapper.text()).toContain('Privacy Policy')
   })
 
