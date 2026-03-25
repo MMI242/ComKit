@@ -83,67 +83,15 @@ class OllamaProvider(AIProvider):
         # For now, return common models
         return ["qwen3:8b", "llama2", "mistral", "codellama"]
 
-class OpenAIProvider(AIProvider):
-    """Alternative AI provider (for fallback)"""
-    
-    def __init__(self):
-        self.api_key = config_manager.get("OPENAI_API_KEY")
-        self.api_url = "https://api.openai.com/v1"
-        self.default_model = "gpt-3.5-turbo"
-    
-    @log_execution_time
-    @retry_on_failure(max_retries=2, delay_seconds=1.0)
-    async def generate_recipe(self, ingredients: str, model: str) -> Dict[str, Any]:
-        """Generate recipe using OpenAI API"""
-        if not self.api_key:
-            raise ValueError("OpenAI API key not configured")
-        
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "model": model or self.default_model,
-            "messages": [
-                {"role": "system", "content": "You are a helpful chef assistant. Generate recipes based on available ingredients."},
-                {"role": "user", "content": ingredients}
-            ],
-            "max_tokens": 1000,
-            "temperature": 0.7
-        }
-        
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    f"{self.api_url}/chat/completions",
-                    headers=headers,
-                    json=payload
-                )
-                response.raise_for_status()
-                return response.json()
-        except Exception as e:
-            logger.error(f"OpenAI API error: {str(e)}")
-            raise
-    
-    async def health_check(self) -> bool:
-        """Check if OpenAI service is healthy"""
-        return bool(self.api_key)
-    
-    def get_available_models(self) -> list[str]:
-        """Get available OpenAI models"""
-        return ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"]
-
 class AIProxy:
     """Proxy class that manages multiple AI providers and provides unified interface"""
     
     def __init__(self):
         self.providers = {
-            "ollama": OllamaProvider(),
-            "openai": OpenAIProvider()
+            "ollama": OllamaProvider()
         }
         self.primary_provider = "ollama"
-        self.fallback_providers = ["openai"]
+        self.fallback_providers = []  # No fallback - only use real LLM
         self._health_cache = {}
         self._cache_ttl = 300  # 5 minutes
     

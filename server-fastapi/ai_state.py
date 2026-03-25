@@ -172,14 +172,11 @@ class ProcessingState(AIState):
 class GeneratingState(AIState):
     """State when AI is generating the recipe"""
     
-    def __init__(self):
-        from ai_proxy import ai_proxy
-        self.ai_proxy = ai_proxy
-    
     async def handle(self, context: AIRequestContext) -> 'AIState':
         try:
-            # Use AI proxy to generate recipe
-            result = await self.ai_proxy.generate_recipe(
+            # Import fresh ai_proxy instance for each attempt
+            from ai_proxy import ai_proxy
+            result = await ai_proxy.generate_recipe(
                 ingredients=context.ingredients,
                 model=None  # Let proxy decide
             )
@@ -204,16 +201,14 @@ class GeneratingState(AIState):
 class RetryingState(AIState):
     """State when request is being retried"""
     
-    def __init__(self):
-        from ai_proxy import ai_proxy
-        self.ai_proxy = ai_proxy
-    
     async def handle(self, context: AIRequestContext) -> 'AIState':
         try:
             # Add delay before retry
             await __import__('asyncio').sleep(1.0 * context.attempts)
             
-            result = await self.ai_proxy.generate_recipe(
+            # Import fresh ai_proxy instance for each retry
+            from ai_proxy import ai_proxy
+            result = await ai_proxy.generate_recipe(
                 ingredients=context.ingredients,
                 model=None
             )
@@ -227,7 +222,7 @@ class RetryingState(AIState):
             
             if context.can_retry():
                 context.set_state(AIRequestState.RETRYING, f"Retry {context.attempts} failed: {error_msg}")
-                return RetryingState()  # Stay in retrying state
+                return RetryingState()  # Create new RetryingState instance
             else:
                 context.set_state(AIRequestState.FALLBACK, "All retries failed, trying fallback")
                 return FallbackState()
@@ -238,24 +233,10 @@ class RetryingState(AIState):
 class FallbackState(AIState):
     """State when trying fallback providers"""
     
-    def __init__(self):
-        from ai_proxy import ai_proxy
-        self.ai_proxy = ai_proxy
-    
     async def handle(self, context: AIRequestContext) -> 'AIState':
-        try:
-            # Force use of different provider
-            result = await self.ai_proxy.generate_recipe(
-                ingredients=context.ingredients,
-                provider="openai"  # Try OpenAI as fallback
-            )
-            
-            context.mark_completed(result, result.get("provider", "unknown"))
-            return CompletedState()
-            
-        except Exception as e:
-            context.mark_failed(f"All providers failed: {str(e)}")
-            return FailedState()
+        # No fallback providers - mark as failed
+        context.mark_failed("All providers failed - no template fallback available")
+        return FailedState()
     
     def get_state_name(self) -> AIRequestState:
         return AIRequestState.FALLBACK
@@ -286,7 +267,6 @@ class AIStateMachine:
     """State machine that manages AI request lifecycle"""
     
     def __init__(self):
-        self.current_state: AIState = IdleState()
         self.active_requests: Dict[str, AIRequestContext] = {}
     
     async def process_request(self, user_id: int, ingredients: str, request_id: str) -> AIRequestContext:
@@ -296,9 +276,12 @@ class AIStateMachine:
         context = AIRequestContext(user_id, ingredients, request_id)
         self.active_requests[request_id] = context
         
+        # Start with fresh state for each request
+        current_state = IdleState()
+        
         # Process through state machine
-        while not isinstance(self.current_state, (CompletedState, FailedState)):
-            self.current_state = await self.current_state.handle(context)
+        while not isinstance(current_state, (CompletedState, FailedState)):
+            current_state = await current_state.handle(context)
             
             # Prevent infinite loops
             if len(context.history) > 20:  # Safety limit
@@ -306,7 +289,7 @@ class AIStateMachine:
                 break
         
         # Clean up completed/failed requests after delay
-        if isinstance(self.current_state, (CompletedState, FailedState)):
+        if isinstance(current_state, (CompletedState, FailedState)):
             await self._cleanup_request(request_id)
         
         return context

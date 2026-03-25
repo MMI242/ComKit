@@ -54,8 +54,10 @@ router = APIRouter(prefix="/ai", tags=["AI Recipe"])
 
 # Check if AI is properly configured
 def is_ai_configured() -> bool:
-    """Check if at least one AI provider is configured"""
-    return bool(config_manager.get("DEFAULT_OLLAMA_MODEL") or config_manager.get("OPENAI_API_KEY"))
+    """Check if Ollama AI provider is configured"""
+    api_url = config_manager.get("OLLAMA_API_URL")
+    model = config_manager.get("DEFAULT_OLLAMA_MODEL")
+    return bool(api_url and model)
 
 # Abstract Factory for AI prompt generation
 class AIPromptFactory(ABC):
@@ -180,7 +182,23 @@ async def generate_recipe(
                     json_end = content.find("```", json_start)
                     content = content[json_start:json_end].strip()
                 
-                recipe_data = json.loads(content)
+                # Try parsing the content as JSON directly
+                try:
+                    recipe_data = json.loads(content)
+                except json.JSONDecodeError:
+                    # If direct parsing fails, the content might be a JSON string that needs to be parsed again
+                    # This can happen with MockProvider where content is already a JSON string
+                    try:
+                        # Try to parse the content as a JSON string (double parsing)
+                        parsed_content = json.loads(content)
+                        if isinstance(parsed_content, str):
+                            # If the parsed content is still a string, parse it again
+                            recipe_data = json.loads(parsed_content)
+                        else:
+                            recipe_data = parsed_content
+                    except (json.JSONDecodeError, TypeError):
+                        # If all parsing attempts fail, raise the original error
+                        raise ValueError("Unable to parse JSON from response")
                 
                 # Validate required fields
                 if not all(k in recipe_data for k in ["title", "ingredients", "instructions"]):
