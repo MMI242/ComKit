@@ -3,9 +3,21 @@
 <img width="1600" height="710" alt="LogoPPL" src="https://github.com/user-attachments/assets/074ed03e-c9c0-433f-8733-4b1a4802c243" />
 ComKit is a community kitchen sharing platform that allows users to borrow and share kitchen items within their community. This platform helps reduce waste and promote resource sharing among neighbors.
 
-## POSTMAN collection
+## API Documentation
 
-You can download the postman collection in this [postman link](https://www.postman.com/mission-candidate-28241265/workspace/comkit)
+### Interactive Documentation
+Start the backend server and visit:
+- **Swagger UI**: `http://localhost:8000/docs` - Interactive API testing
+- **ReDoc**: `http://localhost:8000/redoc` - Clean API documentation
+
+### Postman Collection
+For API testing, you can:
+1. Import the local Postman collection: `postman-collection.json`
+2. Import the environment: `postman-environment.json`
+3. Or view the online collection: [Postman Workspace](https://www.postman.com/mission-candidate-28241265/workspace/comkit)
+
+### API Reference
+See `API_DOCUMENTATION.md` for complete API reference with examples, authentication flows, and integration guides.
 
 ## Database Setup
 
@@ -13,6 +25,63 @@ If you want to create database, please run `python server-fastapi/migration.py`
 
 This command will create the SQLite database with all necessary tables including users, items, and requests. The database file will be created in the server-fastapi directory.
 Don't forget to setup your `.env` too.
+
+## Backend (FastAPI) Setup and Running
+
+### Prerequisites
+- Python 3.8 or higher
+- pip
+
+### Installation
+
+1. Navigate to the server directory:
+```bash
+cd server-fastapi
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Environment Setup:
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your configuration
+# Set up database URL, Ollama API for AI features, etc.
+```
+
+### Running the Development Server
+
+1. Start the backend server:
+```bash
+python main.py
+```
+
+2. The API will be available at:
+```
+http://localhost:8000
+```
+
+3. Interactive API documentation:
+```
+http://localhost:8000/docs
+```
+
+### Available Scripts
+- `python main.py` - Start development server
+- `python migration.py` - Create database tables
+- `python run_faker.py` - Generate fake data for testing
+
+### Features
+- JWT Authentication with refresh tokens
+- RESTful API with OpenAPI documentation
+- File upload support for item photos
+- AI-powered recipe generation (Ollama)
+- WebSocket notifications
+- SQLite database with SQLAlchemy
 
 ## Frontend (Nuxt UI) Setup and Running
 
@@ -100,9 +169,96 @@ python server-fastapi/run_faker.py --clear
 python server-fastapi/run_faker.py --users 5 --items 10 --requests 8
 ```
 
-Available options:
-- `--users N`: Create N fake users (default: 10)
-- `--items N`: Create N fake items (default: 20)
-- `--requests N`: Create N fake requests (default: 15)
-- `--all`: Create all fake data with default numbers
-- `--clear`: Clear all data from database
+## Project Structure
+
+```
+ComKit/
+├── server-fastapi/          # Backend API (FastAPI)
+│   ├── main.py             # Main application entry point
+│   ├── models.py           # Database models
+│   ├── schemas.py          # Pydantic schemas
+│   ├── auth.py             # Authentication logic
+│   ├── routes_*.py         # API route handlers
+│   ├── migration.py        # Database migration
+│   └── run_faker.py        # Fake data generator
+├── ui/                     # Frontend (Nuxt.js)
+│   ├── pages/              # Vue pages
+│   ├── components/         # Vue components
+│   ├── composables/        # Vue composables
+│   └── assets/             # Static assets
+├── docs/                   # Project documentation
+├── postman-collection.json # API collection for testing
+├── postman-environment.json # Environment variables
+└── API_DOCUMENTATION.md    # Complete API reference
+```
+
+## Key Features
+
+### 🏪 Item Sharing
+- List kitchen items for borrowing or sharing
+- Search and filter available items
+- Photo uploads with thumbnails
+- Item status management
+
+### 🔐 Authentication
+- JWT-based authentication
+- Refresh token support
+- HTTP-only cookie security
+- User registration and login
+
+### 🤝 Request System
+- Borrowing requests with date ranges
+- Approval workflows
+- Status tracking (pending, approved, returned)
+- Real-time notifications
+
+### 🤖 AI Integration
+- Recipe generation based on available ingredients
+- Ollama AI integration
+- Request tracking and metrics
+- Observer pattern for monitoring
+
+### 📱 Modern UI
+- Responsive Nuxt.js frontend
+- Real-time updates
+- File upload support
+- Clean, intuitive interface
+
+## Development Workflow
+
+1. **Setup Database**: `python server-fastapi/migration.py`
+2. **Start Backend**: `cd server-fastapi && python main.py`
+3. **Start Frontend**: `cd ui && npm run dev`
+4. **Visit App**: `http://localhost:3000`
+5. **API Docs**: `http://localhost:8000/docs`
+
+## Testing
+
+### Backend Testing
+```bash
+cd test-server
+python test_login.py
+python test_register.py
+python test_user_items.py
+```
+
+### Frontend Testing
+```bash
+cd ui
+npm run test
+```
+
+### API Testing
+Import `postman-collection.json` into Postman or use the interactive Swagger UI.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.

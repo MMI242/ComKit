@@ -1,0 +1,648 @@
+{
+	"info": {
+		"_postman_id": "comkit-kitchen-sharing-api",
+		"name": "ComKit - Kitchen Sharing API",
+		"description": "API documentation for ComKit Kitchen Sharing Application. This API allows users to share and borrow kitchen items in their community.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"your_username\",\n    \"password\": \"your_password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Authenticate user and receive access tokens. Sets HTTP-only cookies for auto-login."
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"new_user\",\n    \"password\": \"password123\",\n    \"name\": \"John Doe\",\n    \"address\": \"123 Main St, City\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user account. Auto-login after successful registration."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh_token\": \"your_refresh_token\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "refresh"]
+						},
+						"description": "Refresh access token using refresh token."
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Cookies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/validate-cookies",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "validate-cookies"]
+						},
+						"description": "Validate authentication cookies and return user info."
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Cookies",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/clear-cookies",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "clear-cookies"]
+						},
+						"description": "Clear authentication cookies (logout)."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user login, registration, and token management."
+		},
+		{
+			"name": "Items",
+			"item": [
+				{
+					"name": "Get All Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/items?page=1&search=&type=all",
+							"host": ["{{base_url}}"],
+							"path": ["items"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search term for item name, description, or owner name"
+								},
+								{
+									"key": "type",
+									"value": "all",
+									"description": "Filter by type: all, borrow, share"
+								}
+							]
+						},
+						"description": "Get paginated list of all available items with search and filtering options."
+					},
+					"response": []
+				},
+				{
+					"name": "Request Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requested_qty\": 2,\n    \"date_start\": \"2024-01-15\",\n    \"date_end\": \"2024-01-20\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/items/{{item_id}}/request",
+							"host": ["{{base_url}}"],
+							"path": ["items", "{{item_id}}", "request"]
+						},
+						"description": "Request to borrow a specific item for a date range."
+					},
+					"response": []
+				}
+			],
+			"description": "Public item browsing and requesting endpoints."
+		},
+		{
+			"name": "User Items",
+			"item": [
+				{
+					"name": "Get My Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/items",
+							"host": ["{{base_url}}"],
+							"path": ["user", "items"]
+						},
+						"description": "Get all items owned by the current user."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Kitchen Mixer",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Professional kitchen mixer for baking",
+									"type": "text"
+								},
+								{
+									"key": "qty",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "unit",
+									"value": "pcs",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "share",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "available",
+									"type": "text"
+								},
+								{
+									"key": "photo",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/user/items",
+							"host": ["{{base_url}}"],
+							"path": ["user", "items"]
+						},
+						"description": "Create a new item listing with optional photo upload."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Updated Kitchen Mixer",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Updated description for professional kitchen mixer",
+									"type": "text"
+								},
+								{
+									"key": "qty",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "unit",
+									"value": "pcs",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "share",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "available",
+									"type": "text"
+								},
+								{
+									"key": "photo",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/user/items/{{item_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["user", "items", "{{item_id}}"]
+						},
+						"description": "Update an existing item. Only the owner can update their items."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/items/{{item_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["user", "items", "{{item_id}}"]
+						},
+						"description": "Delete an item. Only allowed if there are no active requests."
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for user-owned items."
+		},
+		{
+			"name": "User Requests",
+			"item": [
+				{
+					"name": "Get Incoming Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/requests?type=incoming",
+							"host": ["{{base_url}}"],
+							"path": ["user", "requests"],
+							"query": [
+								{
+									"key": "type",
+									"value": "incoming",
+									"description": "Type: incoming (requests for your items) or outgoing (your requests)"
+								}
+							]
+						},
+						"description": "Get requests for items you own (incoming)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outgoing Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/user/requests?type=outgoing",
+							"host": ["{{base_url}}"],
+							"path": ["user", "requests"],
+							"query": [
+								{
+									"key": "type",
+									"value": "outgoing",
+									"description": "Type: incoming (requests for your items) or outgoing (your requests)"
+								}
+							]
+						},
+						"description": "Get requests you have made (outgoing)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Request Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"approved\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/requests/{{request_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["user", "requests", "{{request_id}}"]
+						},
+						"description": "Update request status. Owner can approve/reject/return, requester can cancel."
+					},
+					"response": []
+				}
+			],
+			"description": "Manage borrowing requests for items."
+		},
+		{
+			"name": "AI Recipe Generator",
+			"item": [
+				{
+					"name": "Generate Recipe",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ingredients\": \"tomatoes, onions, garlic, pasta, olive oil\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/recipe",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "recipe"]
+						},
+						"description": "Generate a recipe using AI based on available ingredients."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Request Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ai/request/{{request_id}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "request", "{{request_id}}", "status"]
+						},
+						"description": "Get the status of a specific AI recipe generation request."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ai/requests/active",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "requests", "active"]
+						},
+						"description": "Get all active AI requests for the current user."
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ai/request/{{request_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "request", "{{request_id}}"]
+						},
+						"description": "Cancel an active AI request."
+					},
+					"response": []
+				},
+				{
+					"name": "Get AI Metrics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ai/metrics",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "metrics"]
+						},
+						"description": "Get AI service performance metrics."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Observer Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ai/observers/status",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "observers", "status"]
+						},
+						"description": "Get status of AI observers and recent events."
+					},
+					"response": []
+				}
+			],
+			"description": "AI-powered recipe generation using Ollama."
+		},
+		{
+			"name": "Development",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						},
+						"description": "Basic health check endpoint."
+					},
+					"response": []
+				}
+			],
+			"description": "Development and utility endpoints."
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "item_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "request_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-refresh token if needed",
+					"if (pm.collectionVariables.get('access_token')) {",
+					"    try {",
+					"        const token = pm.collectionVariables.get('access_token');",
+					"        const payload = JSON.parse(atob(token.split('.')[1]));",
+					"        const exp = payload.exp * 1000;",
+					"        ",
+					"        if (Date.now() >= exp) {",
+					"            console.log('Token expired, refreshing...');",
+					"            // Token refresh logic would go here",
+					"        }",
+					"    } catch (e) {",
+					"        console.log('Invalid token format');",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Store token from login/register responses",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    const response = pm.response.json();",
+					"    if (response.access_token) {",
+					"        pm.collectionVariables.set('access_token', response.access_token);",
+					"        console.log('Access token stored');",
+					"    }",
+					"}",
+					"",
+					"// Basic response validation",
+					"pm.test('Status code is successful', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+					"});",
+					"",
+					"// Log response for debugging",
+					"console.log('Response:', pm.response.json());"
+				]
+			}
+		}
+	]
+}
