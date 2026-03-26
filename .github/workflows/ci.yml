@@ -24,9 +24,6 @@ jobs:
   lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: sourcecode
 
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +49,7 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: sourcecode/ui/package-lock.json
+          cache-dependency-path: ui/package-lock.json
 
       - name: Install frontend dependencies
         run: cd ui && npm ci || npm install
@@ -67,9 +64,6 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     needs: lint
-    defaults:
-      run:
-        working-directory: sourcecode
 
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +95,7 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: sourcecode/ui/package-lock.json
+          cache-dependency-path: ui/package-lock.json
 
       - name: Install frontend dependencies
         run: cd ui && npm ci || npm install
@@ -115,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-results
-          path: sourcecode/test-results/
+          path: test-results/
 
   # ============================================
   # Stage 3: Integration Test
@@ -124,9 +118,6 @@ jobs:
     name: Integration Test
     runs-on: ubuntu-latest
     needs: unit-test
-    defaults:
-      run:
-        working-directory: sourcecode
 
     steps:
       - uses: actions/checkout@v4
@@ -180,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-results
-          path: sourcecode/test-results/
+          path: test-results/
 
   # ============================================
   # Stage 4: Build Image
@@ -210,7 +201,7 @@ jobs:
       - name: Build backend image
         uses: docker/build-push-action@v6
         with:
-          context: sourcecode/server-fastapi
+          context: server-fastapi
           target: production
           push: false
           tags: |
@@ -223,7 +214,7 @@ jobs:
       - name: Build frontend image
         uses: docker/build-push-action@v6
         with:
-          context: sourcecode/ui
+          context: ui
           target: production
           push: false
           tags: |
