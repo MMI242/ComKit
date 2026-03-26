@@ -83,7 +83,9 @@ jobs:
       - name: Run backend unit tests
         run: |
           cd test-server
-          python -m pytest test_register.py test_login.py test_homepage.py -v --tb=short --junitxml=../test-results/backend-unit.xml
+          python test_register.py
+          python test_login.py
+          python test_homepage.py
         env:
           ENVIRONMENT: testing
           SECRET_KEY: test-secret-key-for-ci
