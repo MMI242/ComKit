@@ -78,12 +78,12 @@ jobs:
         run: |
           cd server-fastapi
           pip install -r requirements.txt
-          pip install pytest httpx
+          pip install -r ../test-server/requirements.txt
 
       - name: Run backend unit tests
         run: |
-          cd server-fastapi
-          python -m pytest tests/ -v --tb=short --junitxml=../test-results/backend-unit.xml
+          cd test-server
+          python -m pytest test_register.py test_login.py test_homepage.py -v --tb=short --junitxml=../test-results/backend-unit.xml
         env:
           ENVIRONMENT: testing
           SECRET_KEY: test-secret-key-for-ci
@@ -101,7 +101,7 @@ jobs:
         run: cd ui && npm ci || npm install
 
       - name: Run frontend unit tests (Vitest)
-        run: cd ui && npx vitest run --reporter=verbose --reporter=junit --outputFile=../test-results/frontend-unit.xml
+        run: cd ui && npm run test:run
 
       # --- Upload Test Results ---
       - name: Upload test results
