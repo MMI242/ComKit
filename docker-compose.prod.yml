@@ -1,0 +1,52 @@
+# ==============================================================
+# Docker Compose - Production / Staging
+# Uses pre-built Docker images (from CI/CD pipeline)
+# ==============================================================
+
+name: comkit-prod
+
+services:
+  backend:
+    image: comkit-backend:latest
+    container_name: comkit-backend
+    env_file:
+      - ./server-fastapi/.env
+    environment:
+      PORT: "8000"
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - backend_data:/app/media
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://127.0.0.1:8000/ || exit 1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    image: comkit-frontend:latest
+    container_name: comkit-frontend
+    env_file:
+      - ./ui/.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "8001:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend_data:

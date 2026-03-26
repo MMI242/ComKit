@@ -1,0 +1,233 @@
+# ==============================================================
+# CI Pipeline - ComKit
+# Runs on every push/PR to main branch
+# Stages: Lint & Static Analysis → Unit Test → Integration Test → Build Image
+# ==============================================================
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend
+
+jobs:
+  # ============================================
+  # Stage 1: Lint & Static Analysis
+  # ============================================
+  lint:
+    name: Lint & Static Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sourcecode
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend Lint (Python - ruff) ---
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend lint tools
+        run: pip install ruff
+
+      - name: Run ruff linter (backend)
+        run: ruff check server-fastapi/ --output-format=github
+
+      - name: Run ruff formatter check (backend)
+        run: ruff format --check server-fastapi/
+
+      # --- Frontend Lint (TypeScript check) ---
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: sourcecode/ui/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd ui && npm ci || npm install
+
+      - name: Run TypeScript type check (frontend)
+        run: cd ui && npx nuxi typecheck || true
+
+  # ============================================
+  # Stage 2: Unit Test
+  # ============================================
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: sourcecode
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend Unit Tests ---
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: |
+          cd server-fastapi
+          pip install -r requirements.txt
+          pip install pytest httpx
+
+      - name: Run backend unit tests
+        run: |
+          cd server-fastapi
+          python -m pytest tests/ -v --tb=short --junitxml=../test-results/backend-unit.xml
+        env:
+          ENVIRONMENT: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///./test.db
+
+      # --- Frontend Unit Tests ---
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: sourcecode/ui/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd ui && npm ci || npm install
+
+      - name: Run frontend unit tests (Vitest)
+        run: cd ui && npx vitest run --reporter=verbose --reporter=junit --outputFile=../test-results/frontend-unit.xml
+
+      # --- Upload Test Results ---
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: sourcecode/test-results/
+
+  # ============================================
+  # Stage 3: Integration Test
+  # ============================================
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: unit-test
+    defaults:
+      run:
+        working-directory: sourcecode
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Start backend with Docker Compose ---
+      - name: Create backend .env for testing
+        run: |
+          cat > server-fastapi/.env <<EOF
+          ENVIRONMENT=testing
+          SECRET_KEY=ci-test-secret-key-12345
+          DATABASE_URL=sqlite:///./test_integration.db
+          OLLAMA_API_URL=http://localhost:11434
+          OLLAMA_API_KEY=
+          DEFAULT_OLLAMA_MODEL=qwen3:8b
+          CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8001
+          EOF
+
+      - name: Start backend service
+        run: |
+          docker compose up -d backend
+          echo "Waiting for backend to be healthy..."
+          timeout 120 bash -c 'until docker compose ps backend | grep -q "healthy"; do sleep 3; echo "Waiting..."; done'
+          echo "Backend is healthy!"
+
+      - name: Verify backend is running
+        run: curl -f http://localhost:8000/ || exit 1
+
+      # --- Run Integration Tests ---
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install -r test-server/requirements.txt
+
+      - name: Run integration tests
+        run: |
+          cd test-server
+          python -m pytest test_login.py test_register.py test_homepage.py test_user_items.py test_user_requests.py -v --tb=short --junitxml=../test-results/integration.xml
+        env:
+          BASE_URL: http://localhost:8000
+
+      # --- Cleanup & Upload ---
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: sourcecode/test-results/
+
+  # ============================================
+  # Stage 4: Build Image
+  # ============================================
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: integration-test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Build Backend Image ---
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: sourcecode/server-fastapi
+          target: production
+          push: false
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+            ${{ env.BACKEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # --- Build Frontend Image ---
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: sourcecode/ui
+          target: production
+          push: false
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+            ${{ env.FRONTEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
