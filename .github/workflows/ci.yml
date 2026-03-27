@@ -97,6 +97,7 @@ jobs:
           cd test-server
           python -m pytest test_register.py test_login.py test_homepage.py -v --tb=short
         env:
+          BASE_URL: http://localhost:8000
           ENVIRONMENT: testing
           SECRET_KEY: test-secret-key-for-ci
           DATABASE_URL: sqlite:///./test.db

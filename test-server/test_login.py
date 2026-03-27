@@ -1,12 +1,10 @@
+import os
 import pytest
 import requests
 import sys
 
 # Base URL untuk API server
-try:
-    BASE_URL = sys.argv[1]
-except IndexError:
-    BASE_URL = "http://localhost:8000"
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 # user sudah ada di server
 TEST_USER = "testuser"
