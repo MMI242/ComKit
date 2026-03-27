@@ -13,11 +13,16 @@ from decorators import log_execution_time, retry_on_failure
 
 router = APIRouter(prefix="/ai", tags=["AI Recipe"])
 
+
 def _load_ollama_config():
     """Reload Ollama config from .env file on every call"""
     from dotenv import dotenv_values
+
     env = dotenv_values(".env")
-    url = (env.get("OLLAMA_API_URL") or config_manager.get("OLLAMA_API_URL", "https://ollama.com")).rstrip("/")
+    url = (
+        env.get("OLLAMA_API_URL")
+        or config_manager.get("OLLAMA_API_URL", "https://ollama.com")
+    ).rstrip("/")
     key = env.get("OLLAMA_API_KEY") or config_manager.get("OLLAMA_API_KEY")
     model = (
         env.get("DEFAULT_OLLAMA_MODEL")
@@ -117,10 +122,9 @@ async def generate_recipe(
 
     if not DEFAULT_OLLAMA_MODEL:
         raise HTTPException(
-            status_code=503,
-            detail="AI model is not configured on the server"
+            status_code=503, detail="AI model is not configured on the server"
         )
-    
+
     # Use Factory Method to create prompt
     try:
         prompt_factory = AIPromptFactoryProvider.get_factory("recipe")
@@ -140,9 +144,7 @@ async def generate_recipe(
 
         client = ollama.AsyncClient(host=OLLAMA_API_URL, headers=headers)
         result = await client.generate(
-            model=DEFAULT_OLLAMA_MODEL,
-            prompt=prompt,
-            stream=False
+            model=DEFAULT_OLLAMA_MODEL, prompt=prompt, stream=False
         )
 
         ai_response = result.get("response", "")
@@ -163,7 +165,9 @@ async def generate_recipe(
             recipe_data = json.loads(ai_response)
 
             # Validate required fields
-            if not all(k in recipe_data for k in ["title", "ingredients", "instructions"]):
+            if not all(
+                k in recipe_data for k in ["title", "ingredients", "instructions"]
+            ):
                 raise ValueError("Missing required fields")
 
         except (json.JSONDecodeError, ValueError):
@@ -175,18 +179,15 @@ async def generate_recipe(
                 "instructions": [],
                 "cooking_time": "N/A",
                 "servings": "N/A",
-                "difficulty": "N/A"
+                "difficulty": "N/A",
             }
 
         return RecipeResponse(
             recipe=recipe_data,
             generated_at=datetime.utcnow(),
-            model=DEFAULT_OLLAMA_MODEL
+            model=DEFAULT_OLLAMA_MODEL,
         )
 
     except Exception as e:
         print(f"[OLLAMA] ERROR: {e}", flush=True)
-        raise HTTPException(
-            status_code=503,
-            detail=f"AI service error: {str(e)}"
-        )
+        raise HTTPException(status_code=503, detail=f"AI service error: {str(e)}")

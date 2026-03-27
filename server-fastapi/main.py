@@ -123,5 +123,12 @@ if __name__ == "__main__":
             port = int(sys.argv[1])
         except ValueError:
             pass
-    
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True, proxy_headers=True, forwarded_allow_ips="*")
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=True,
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )
