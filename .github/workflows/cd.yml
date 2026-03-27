@@ -135,17 +135,7 @@ jobs:
           timeout 120 bash -c 'until curl -sf http://localhost:8001/login > /dev/null 2>&1; do sleep 3; echo "Waiting..."; done'
           echo "Frontend is up!"
 
-  # ============================================
-  # Stage 3: Smoke Test Post-Deployment
-  # ============================================
-  smoke-test:
-    name: Smoke Test
-    runs-on: ubuntu-latest
-    needs: deploy-staging
-
-    steps:
-      - uses: actions/checkout@v4
-
+      # --- Run Smoke Test Post-Deployment ---
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
