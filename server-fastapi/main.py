@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize logging configuration
-import logging_config
+import logging_config  # noqa: F401
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,13 +45,18 @@ def get_cors_allowed_origins() -> list[str]:
     ]
 
 
-IS_DEVELOPMENT = config_manager.get("ENVIRONMENT", "production").lower() == "development"
+IS_DEVELOPMENT = (
+    config_manager.get("ENVIRONMENT", "production").lower() == "development"
+)
 CORS_ALLOWED_ORIGINS = get_cors_allowed_origins()
-CORS_ALLOW_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$" if IS_DEVELOPMENT else None
+CORS_ALLOW_ORIGIN_REGEX = (
+    r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$" if IS_DEVELOPMENT else None
+)
 ENABLE_NOTIFICATIONS = config_manager.get_bool("ENABLE_NOTIFICATIONS", True)
 
 # Create media directory
 os.makedirs("media/items", exist_ok=True)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -60,11 +65,12 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown: cleanup if needed
 
+
 app = FastAPI(
     title="Kitchen Sharing API",
     description="API for community kitchen item sharing application",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Register exception handlers
@@ -98,26 +104,31 @@ app.include_router(dev_router)
 if ENABLE_NOTIFICATIONS:
     app.include_router(websocket_router)
 
+
 @app.get("/")
 def root():
-    return {
-        "message": "Kitchen Sharing API",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
+    return {"message": "Kitchen Sharing API", "version": "1.0.0", "docs": "/docs"}
+
 
 if __name__ == "__main__":
     import uvicorn
     import sys
-    
+
     # Get port from environment or default to 8000
     port = int(os.getenv("PORT", "8000"))
-    
+
     # Check if port argument is passed
     if len(sys.argv) > 1:
         try:
             port = int(sys.argv[1])
         except ValueError:
             pass
-    
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True, proxy_headers=True, forwarded_allow_ips="*")
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=True,
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )

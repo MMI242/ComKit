@@ -80,6 +80,11 @@ export const useAuth = () => {
       const { authApi, setAuthToken } = await import('../services/api')
         const response = await authApi.login({username, password})
         
+        // Set user state (same as register)
+        if (response.user) {
+          user.value = response.user
+        }
+        
         // Store token for fallback authentication
         if (response.access_token) {
           setAuthToken(response.access_token)

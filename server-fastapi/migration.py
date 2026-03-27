@@ -14,7 +14,7 @@ current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
 from database import engine, Base, DATABASE_URL
-from models import User, Item, Request, ItemType, ItemStatus, RequestStatus
+from models import User, Item, Request, ItemType, ItemStatus, RequestStatus  # noqa: F401
 
 
 def create_database_and_tables():
@@ -28,17 +28,17 @@ def create_database_and_tables():
     try:
         print("Starting database migration...")
         print(f"Database URL: {DATABASE_URL}")
-        
+
         # Create all tables
         Base.metadata.create_all(bind=engine)
-        
+
         print("Database tables created successfully!")
-        
+
         # List all created tables
         print("\nCreated tables:")
         for table_name in Base.metadata.tables.keys():
             print(f"   - {table_name}")
-        
+
         # Show table details
         print("\nTable schemas:")
         for table_name, table in Base.metadata.tables.items():
@@ -48,10 +48,10 @@ def create_database_and_tables():
                 nullable = "NULL" if column.nullable else "NOT NULL"
                 primary_key = "PRIMARY KEY" if column.primary_key else ""
                 unique = "UNIQUE" if column.unique else ""
-                
+
                 constraints = " ".join(filter(None, [nullable, primary_key, unique]))
                 print(f"   - {column.name}: {column_type} ({constraints})")
-        
+
         # Show database file location if SQLite
         if "sqlite" in DATABASE_URL:
             db_path = DATABASE_URL.replace("sqlite:///", "")
@@ -61,9 +61,9 @@ def create_database_and_tables():
                 print(f"File size: {size} bytes")
             else:
                 print(f"\nWarning: Database file not found at: {db_path}")
-        
+
         print("\nMigration completed successfully!")
-        
+
     except Exception as e:
         print(f"Error during migration: {e}")
         raise
@@ -99,13 +99,17 @@ def reset_database():
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Database migration script for ComKit")
-    parser.add_argument("--reset", action="store_true", help="Reset database (drop and recreate all tables)")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Reset database (drop and recreate all tables)",
+    )
     parser.add_argument("--drop", action="store_true", help="Drop all tables")
-    
+
     args = parser.parse_args()
-    
+
     if args.drop:
         drop_all_tables()
     elif args.reset:

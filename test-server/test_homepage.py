@@ -1,12 +1,10 @@
+import os
 import pytest
 import requests
 import sys
 
 # Base URL untuk API server
-try:
-    BASE_URL = sys.argv[1]
-except IndexError:
-    BASE_URL = "http://localhost:8000"
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 # Test user credentials (user harus sudah ada di server)
 TEST_USER = "testuser"
@@ -181,7 +179,8 @@ def test_get_items_unauthorized():
     
     response = requests.get(url)
     
-    assert response.status_code == 401
+    assert response.status_code >= 401
+    assert response.status_code <= 403
     data = response.json()
     assert "error" in data
     

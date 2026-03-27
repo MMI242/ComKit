@@ -12,16 +12,14 @@
 # Field kosong
 # Username dengan underscore (valid)
 
+import os
 import pytest
 import requests
 import uuid
 import sys
 
 # Base URL untuk API server
-try:
-    BASE_URL = sys.argv[1]
-except IndexError:
-    BASE_URL = "http://localhost:8000"
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 
 def generate_unique_username():

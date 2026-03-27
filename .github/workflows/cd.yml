@@ -1,0 +1,187 @@
+# ==============================================================
+# CD Pipeline - ComKit
+# Runs when a release tag is created (e.g., v1.0.0)
+# Stages: Push Image → Deploy Staging → Smoke Test
+# ==============================================================
+
+name: CD Pipeline
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ============================================
+  # Stage 1: Build & Push Docker Image to Registry
+  # ============================================
+  push-image:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image names (lowercase)
+        run: |
+          echo "BACKEND_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/backend" >> $GITHUB_ENV
+          echo "FRONTEND_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      # --- Build & Push Backend Image ---
+      - name: Build & push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: server-fastapi
+          target: production
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.BACKEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # --- Build & Push Frontend Image ---
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ui
+          target: production
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.FRONTEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # Stage 2: Deploy to Staging
+  # ============================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: push-image
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create staging .env files
+        run: |
+          cat > server-fastapi/.env <<EOF
+          ENVIRONMENT=staging
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          DATABASE_URL=sqlite:///./kitchen.db
+          OLLAMA_API_URL=${{ secrets.OLLAMA_API_URL }}
+          OLLAMA_API_KEY=${{ secrets.OLLAMA_API_KEY }}
+          DEFAULT_OLLAMA_MODEL=qwen3:8b
+          CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+          EOF
+
+          cat > ui/.env <<EOF
+          API_BASE_URL=${{ secrets.API_BASE_URL }}
+          API_TIMEOUT=10000
+          NUXT_PUBLIC_DEFAULT_PLACEHOLDER_IMAGE=https://placehold.co/600x400
+          EOF
+
+      - name: Deploy with Docker Compose
+        run: |
+          # Pull the released images
+          docker pull ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+          docker pull ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+
+          # Tag as expected by docker-compose
+          docker tag ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }} comkit-backend:latest
+          docker tag ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }} comkit-frontend:latest
+
+          # Start services using production compose
+          docker compose -f docker-compose.prod.yml up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for backend..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8000/ > /dev/null 2>&1; do sleep 3; echo "Waiting..."; done'
+          echo "Backend is up!"
+
+          echo "Waiting for frontend..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8001/ > /dev/null 2>&1; do sleep 3; echo "Waiting..."; done'
+          echo "Frontend is up!"
+
+  # ============================================
+  # Stage 3: Smoke Test Post-Deployment
+  # ============================================
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install requests pytest
+
+      - name: Run smoke tests
+        run: |
+          cat > /tmp/test_smoke.py <<'PYEOF'
+          import requests
+          import pytest
+
+          BASE_URL = "http://localhost:8000"
+
+          def test_backend_health():
+              """Backend responds to root endpoint."""
+              r = requests.get(f"{BASE_URL}/", timeout=10)
+              assert r.status_code == 200
+
+          def test_docs_endpoint():
+              """Swagger docs are accessible."""
+              r = requests.get(f"{BASE_URL}/docs", timeout=10)
+              assert r.status_code == 200
+
+          def test_auth_login_endpoint_exists():
+              """Login endpoint exists (returns 422 without body, not 404)."""
+              r = requests.post(f"{BASE_URL}/auth/login", json={}, timeout=10)
+              assert r.status_code != 404
+
+          def test_auth_register_endpoint_exists():
+              """Register endpoint exists."""
+              r = requests.post(f"{BASE_URL}/auth/register", json={}, timeout=10)
+              assert r.status_code != 404
+
+          def test_items_endpoint_exists():
+              """Items listing endpoint exists."""
+              r = requests.get(f"{BASE_URL}/items/", timeout=10)
+              # May require auth, but should not be 404
+              assert r.status_code in [200, 401, 403]
+          PYEOF
+
+          python -m pytest /tmp/test_smoke.py -v --tb=short

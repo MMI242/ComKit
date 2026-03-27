@@ -1,0 +1,8 @@
+[lint]
+
+[lint.per-file-ignores]
+# These files need load_dotenv() or sys.path manipulation before imports
+"main.py" = ["E402"]
+"migration.py" = ["E402"]
+"run_faker.py" = ["E402"]
+"decorators.py" = ["E402"]

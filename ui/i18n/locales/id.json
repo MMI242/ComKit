@@ -47,7 +47,9 @@
     "register_subtitle": "Daftar untuk memulai",
     "full_name": "Nama Lengkap",
     "confirm_password": "Konfirmasi Kata Sandi",
-    "already_have_account": "Sudah punya akun?"
+    "already_have_account": "Sudah punya akun?",
+    "full_name_placeholder": "John Doe",
+    "email_placeholder": "Masukkan username"
   },
   "dashboard": {
     "title": "Dashboard",
