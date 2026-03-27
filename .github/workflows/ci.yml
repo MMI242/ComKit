@@ -125,7 +125,7 @@ jobs:
           path: test-results/
 
   # ============================================
-  # Stage 3: Integration Test
+  # Stage 3: Integration Test (Playwright E2E)
   # ============================================
   integration-test:
     name: Integration Test
@@ -135,60 +135,79 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Start backend with Docker Compose ---
-      - name: Create .env files for testing
-        run: |
-          cat > server-fastapi/.env <<EOF
-          ENVIRONMENT=testing
-          SECRET_KEY=ci-test-secret-key-12345
-          DATABASE_URL=sqlite:///./test_integration.db
-          OLLAMA_API_URL=https://freemock.top:11434
-          OLLAMA_API_KEY=
-          DEFAULT_OLLAMA_MODEL=qwen3:8b
-          CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8001
-          EOF
-
-          cat > ui/.env <<EOF
-          API_BASE_URL=http://localhost:8000
-          EOF
-
-      - name: Start backend service
-        run: |
-          docker compose up -d backend
-          echo "Waiting for backend to be healthy..."
-          timeout 120 bash -c 'until docker compose ps backend | grep -q "healthy"; do sleep 3; echo "Waiting..."; done'
-          echo "Backend is healthy!"
-
-      - name: Verify backend is running
-        run: curl -f http://localhost:8000/ || exit 1
-
-      # --- Run Integration Tests ---
+      # --- Start Backend (native) ---
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install test dependencies
-        run: pip install -r test-server/requirements.txt
-
-      - name: Run integration tests
+      - name: Install backend dependencies
         run: |
-          cd test-server
-          python -m pytest test_login.py test_register.py test_homepage.py test_user_items.py test_user_requests.py -v --tb=short --junitxml=../test-results/integration.xml
-        env:
-          BASE_URL: http://localhost:8000
+          cd server-fastapi
+          pip install -r requirements.txt
 
-      # --- Cleanup & Upload ---
-      - name: Stop services
-        if: always()
-        run: docker compose down -v
+      - name: Start backend server
+        run: |
+          cd server-fastapi
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          echo "Waiting for backend..."
+          timeout 60 bash -c 'until curl -sf http://localhost:8000/ > /dev/null 2>&1; do sleep 2; done'
+          echo "Backend is ready!"
+        env:
+          ENVIRONMENT: testing
+          SECRET_KEY: ci-test-secret-key-12345
+          DATABASE_URL: sqlite:///./test_integration.db
+
+      # --- Start Frontend (native) ---
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd ui && npm ci || npm install
+
+      - name: Start frontend dev server
+        run: |
+          cd ui
+          npx nuxt dev --host 0.0.0.0 --port 8001 &
+          echo "Waiting for frontend..."
+          timeout 180 bash -c 'until curl -sf http://localhost:8001/ > /dev/null 2>&1; do sleep 3; done'
+          echo "Frontend is ready!"
+        env:
+          API_BASE_URL: http://localhost:8000
+
+      - name: Verify services are running
+        run: |
+          curl -f http://localhost:8000/ || exit 1
+          curl -f http://localhost:8001/ || exit 1
+
+      # --- Run Playwright E2E Tests ---
+      - name: Install Playwright dependencies
+        run: |
+          cd end2end-test
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Run integration tests (Playwright)
+        run: |
+          cd end2end-test
+          npx playwright test TestAlurPengguna.js --project=chromium
+        env:
+          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
+          BASE_URL: http://localhost:8001
+          CI: true
 
       - name: Upload integration test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-results
-          path: test-results/
+          path: |
+            end2end-test/test-results/
+            end2end-test/playwright-report/
 
   # ============================================
   # Stage 4: Build Image
