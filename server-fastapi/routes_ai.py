@@ -9,7 +9,7 @@ from schemas import RecipeRequest, RecipeResponse
 from auth import get_current_user, decode_token
 from database import get_db
 from config import config_manager
-from decorators import log_execution_time, retry_on_failure, cache_result
+from decorators import log_execution_time, retry_on_failure
 
 router = APIRouter(prefix="/ai", tags=["AI Recipe"])
 
