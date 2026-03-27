@@ -18,6 +18,8 @@ const waitForHydration = async (page) => {
     const nuxtEl = document.getElementById('__nuxt');
     return nuxtEl && nuxtEl.__vue_app__;
   }, { timeout: 30000 });
+  // Extra wait to ensure all async plugins/middleware complete
+  await page.waitForTimeout(1000);
 };
 
 test.describe('Alur Pengguna: Registrasi dan Login', () => {
@@ -40,8 +42,16 @@ test.describe('Alur Pengguna: Registrasi dan Login', () => {
     await page.fill('#confirmPassword', user1.password);
     await page.check('#agree-terms');
 
-    // Submit registration form
-    await page.click('button[type="submit"]');
+    // Submit registration and wait for the API response
+    const [registerResponse] = await Promise.all([
+      page.waitForResponse(
+        resp => resp.url().includes('/auth/register') && resp.request().method() === 'POST',
+        { timeout: TIMEOUT }
+      ),
+      page.click('button[type="submit"]')
+    ]);
+
+    expect(registerResponse.status()).toBe(201);
 
     // Verify redirect to dashboard
     await page.waitForURL('**/dashboard', { timeout: TIMEOUT });
@@ -57,15 +67,24 @@ test.describe('Alur Pengguna: Registrasi dan Login', () => {
     // Wait for form to be in the DOM
     await page.waitForSelector('#username', { state: 'visible', timeout: TIMEOUT });
 
-    // Wait for Vue hydration
+    // Wait for Vue hydration (including async plugins/middleware)
     await waitForHydration(page);
 
     // Fill login form using element IDs from login.vue
     await page.fill('#username', user1.username);
     await page.fill('#password', user1.password);
 
-    // Submit login form
-    await page.click('button[type="submit"]');
+    // Submit login and wait for the API response
+    const [loginResponse] = await Promise.all([
+      page.waitForResponse(
+        resp => resp.url().includes('/auth/login') && resp.request().method() === 'POST',
+        { timeout: TIMEOUT }
+      ),
+      page.click('button[type="submit"]')
+    ]);
+
+    // Verify login API succeeded
+    expect(loginResponse.status()).toBe(200);
 
     // Verify redirect to dashboard
     await page.waitForURL('**/dashboard', { timeout: TIMEOUT });

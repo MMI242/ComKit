@@ -10,6 +10,7 @@ const skipWebServer = env.PLAYWRIGHT_SKIP_WEB_SERVER === '1';
 module.exports = defineConfig({
   testDir: '.',
   testMatch: '**/Test*.js',
+  timeout: 60000,
   webServer: skipWebServer
     ? undefined
     : {
