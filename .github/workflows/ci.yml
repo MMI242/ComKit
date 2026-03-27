@@ -174,7 +174,7 @@ jobs:
           cd ui
           npx nuxt dev --host 0.0.0.0 --port 8001 &
           echo "Waiting for frontend..."
-          timeout 180 bash -c 'until curl -sf http://localhost:8001/ > /dev/null 2>&1; do sleep 3; done'
+          timeout 180 bash -c 'until curl -sf http://localhost:8001/login > /dev/null 2>&1; do sleep 3; done'
           echo "Frontend is ready!"
         env:
           API_BASE_URL: http://localhost:8000
@@ -182,7 +182,7 @@ jobs:
       - name: Verify services are running
         run: |
           curl -f http://localhost:8000/ || exit 1
-          curl -f http://localhost:8001/ || exit 1
+          curl -f http://localhost:8001/login || exit 1
 
       # --- Run Playwright E2E Tests ---
       - name: Install Playwright dependencies
