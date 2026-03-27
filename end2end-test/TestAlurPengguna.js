@@ -36,7 +36,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/register`, { waitUntil: 'networkidle' });
     
     // Verify register page loaded
-    await expect(page.locator('text=Join ComKit')).toBeVisible({ timeout: TIMEOUT });
+    await expect(page.locator('text=Create Account')).toBeVisible({ timeout: TIMEOUT });
     
     // Fill register form
     await page.fill('input[placeholder="John Doe"]', user1.name);
@@ -74,7 +74,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.fill('input[placeholder="••••••••"]', user1.password);
     
     // Submit login form
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     
     // Verify redirect to dashboard
     await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: TIMEOUT });
@@ -83,9 +83,9 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     // Note: Navigation might be through bottom navigation or menu - adjust selector as needed
     await page.goto(`${BASE_URL}/mypage`, { waitUntil: 'networkidle' });
     
-    // Verify "Item Saya" section exists and is empty
-    await expect(page.locator('h2:has-text("Item Saya")')).toBeVisible();
-    await expect(page.locator('text=Belum ada item yang dibagikan')).toBeVisible();
+    // Verify "My Items" section exists and is empty
+    await expect(page.locator('h2:has-text("My Items")')).toBeVisible();
+    await expect(page.locator('text=No items shared yet')).toBeVisible();
   });
 
   test('Fase 3: User1 Membuat 30 Items', async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
     await page.fill('input[placeholder="Enter username"]', user1.username);
     await page.fill('input[placeholder="••••••••"]', user1.password);
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     await page.waitForURL(`${BASE_URL}/dashboard`);
     
     // Navigate to MyPage
@@ -103,8 +103,8 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     for (let i = 0; i < 30; i++) {
       const item = generateItem(i);
       
-      // Click "Tambah Item Baru" button
-      await page.click('button:has-text("Tambah Item Baru")');
+      // Click "Add New Item" button
+      await page.click('button:has-text("Add New Item")');
       
       // Wait for modal to appear
       await page.waitForTimeout(500);
@@ -144,7 +144,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
       }
       
       // Submit form - look for submit button in modal
-      await page.click('button:has-text("Submit"), button:has-text("Simpan"), button:has-text("Add Item")');
+      await page.click('button:has-text("Add Item")');
       
       // Wait for modal to close and item to be added
       await page.waitForTimeout(500);
@@ -169,7 +169,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
   test('Fase 4: User2 Registrasi dan Explorasi Items', async ({ page }) => {
     // Register User2
     await page.goto(`${BASE_URL}/register`, { waitUntil: 'networkidle' });
-    await expect(page.locator('text=Join ComKit')).toBeVisible();
+    await expect(page.locator('text=Create Account')).toBeVisible();
     
     await page.fill('input[placeholder="John Doe"]', user2.name);
     await page.fill('input[placeholder="@johndoe"]', user2.username);
@@ -188,7 +188,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await expect(page.locator('text=ComKit')).toBeVisible();
     
     // Verify search bar exists
-    await expect(page.locator('input[placeholder="Cari item..."]')).toBeVisible();
+    await expect(page.locator('input[placeholder="Search items..."]')).toBeVisible();
     
     // Verify filter radio buttons exist
     await expect(page.locator('text=All')).toBeVisible();
@@ -216,7 +216,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
     await page.fill('input[placeholder="Enter username"]', user2.username);
     await page.fill('input[placeholder="••••••••"]', user2.password);
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     await page.waitForURL(`${BASE_URL}/dashboard`);
     
     // Wait for items to load
@@ -247,7 +247,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
     await page.fill('input[placeholder="Enter username"]', user2.username);
     await page.fill('input[placeholder="••••••••"]', user2.password);
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     await page.waitForURL(`${BASE_URL}/dashboard`);
     
     // Wait for items to load
@@ -294,13 +294,13 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     }
     
     // Submit request
-    await page.click('button:has-text("Submit"), button:has-text("Kirim Request"), button:has-text("Send Request")');
+    await page.click('button:has-text("Submit"), button:has-text("Send Request")');
     
     // Wait for confirmation
     await page.waitForTimeout(1000);
     
     // Verify notification/alert
-    const successMessage = page.locator('text=Request berhasil ditambahkan, text=success, text=Request sent');
+    const successMessage = page.locator('text=success, text=Success, text=Request sent');
     if (await successMessage.count() > 0) {
       await expect(successMessage.first()).toBeVisible();
     }
@@ -311,7 +311,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
     await page.fill('input[placeholder="Enter username"]', user1.username);
     await page.fill('input[placeholder="••••••••"]', user1.password);
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     await page.waitForURL(`${BASE_URL}/dashboard`);
     
     // Navigate to MyPage
@@ -320,17 +320,17 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     // Wait for page to load
     await page.waitForTimeout(1000);
     
-    // Verify "Request Masuk" section exists
-    await expect(page.locator('h2:has-text("Request Masuk")')).toBeVisible();
+    // Verify "Incoming Requests" section exists
+    await expect(page.locator('h2:has-text("Incoming Requests")')).toBeVisible();
     
     // Verify incoming request from User2 is visible
     const requestFromUser2 = page.locator('text=' + user2.name).first();
     await expect(requestFromUser2).toBeVisible();
     
     // Verify request details are visible
-    await expect(page.locator('text=Dari:')).toBeVisible();
+    await expect(page.locator('text=From:')).toBeVisible();
     await expect(page.locator('text=Qty:')).toBeVisible();
-    await expect(page.locator('text=Tanggal:')).toBeVisible();
+    await expect(page.locator('text=Date:')).toBeVisible();
     
     // Verify Approve and Reject buttons are visible
     const approveButton = page.locator('button:has-text("Approve")').first();
@@ -345,7 +345,7 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
     await page.fill('input[placeholder="Enter username"]', user1.username);
     await page.fill('input[placeholder="••••••••"]', user1.password);
-    await page.click('button:has-text("Sign in to account")');
+    await page.click('button:has-text("Login")');
     await page.waitForURL(`${BASE_URL}/dashboard`);
     
     // Navigate to MyPage
@@ -369,13 +369,13 @@ test.describe('Alur Pengguna Lengkap (Registrasi, Item Management, dan Item Requ
     await page.waitForTimeout(1000);
     
     // Verify status changed to "Approved"
-    const approvedStatus = page.locator('text=Approved, text=Diterima');
+    const approvedStatus = page.locator('text=Approved');
     if (await approvedStatus.count() > 0) {
       await expect(approvedStatus.first()).toBeVisible();
     }
     
-    // Verify "Sudah Dikembalikan" button appears (replacing Approve/Reject)
-    const returnButton = page.locator('button:has-text("Sudah Dikembalikan")');
+    // Verify "Returned" button appears (replacing Approve/Reject)
+    const returnButton = page.locator('button:has-text("Returned")');
     await expect(returnButton).toBeVisible();
     
     // Verify Approve and Reject buttons no longer visible for this request

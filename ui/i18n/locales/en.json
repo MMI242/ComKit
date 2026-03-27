@@ -47,7 +47,9 @@
     "register_subtitle": "Sign up to get started",
     "full_name": "Full Name",
     "confirm_password": "Confirm Password",
-    "already_have_account": "Already have an account?"
+    "already_have_account": "Already have an account?",
+    "full_name_placeholder": "John Doe",
+    "email_placeholder": "Enter username"
   },
   "dashboard": {
     "title": "Dashboard",
