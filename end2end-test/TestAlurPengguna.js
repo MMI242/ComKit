@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // Test configuration
 const BASE_URL = process.env.BASE_URL || 'http://localhost:8001';
+const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
 const TIMEOUT = 60000;
 
 // Test data - unique username per run
@@ -60,7 +61,19 @@ test.describe('Alur Pengguna: Registrasi dan Login', () => {
     await expect(page.locator('text=ComKit')).toBeVisible({ timeout: TIMEOUT });
   });
 
-  test('Fase 2: User1 Login', async ({ page }) => {
+  test('Fase 2: User1 Login', async ({ page, request }) => {
+    // Ensure user exists via API (handles worker restart on retry where Date.now() changes)
+    const ensureUser = await request.post(`${API_URL}/auth/register`, {
+      data: {
+        username: user1.username,
+        password: user1.password,
+        name: user1.name,
+        address: user1.address
+      }
+    });
+    // 201 = new user created, 409 = already exists from Fase 1 — both are fine
+    expect([201, 409]).toContain(ensureUser.status());
+
     // Navigate to login page
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'load' });
 
