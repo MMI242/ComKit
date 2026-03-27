@@ -80,12 +80,22 @@ jobs:
           pip install -r requirements.txt
           pip install -r ../test-server/requirements.txt
 
+      - name: Start backend server
+        run: |
+          cd server-fastapi
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          echo "Waiting for server to start..."
+          timeout 30 bash -c 'until curl -sf http://localhost:8000/ > /dev/null 2>&1; do sleep 1; done'
+          echo "Server is ready!"
+        env:
+          ENVIRONMENT: testing
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///./test.db
+
       - name: Run backend unit tests
         run: |
           cd test-server
-          python test_register.py
-          python test_login.py
-          python test_homepage.py
+          python -m pytest test_register.py test_login.py test_homepage.py -v --tb=short
         env:
           ENVIRONMENT: testing
           SECRET_KEY: test-secret-key-for-ci
