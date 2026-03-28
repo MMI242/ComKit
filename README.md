@@ -3,6 +3,19 @@
 <img width="1600" height="710" alt="LogoPPL" src="https://github.com/user-attachments/assets/074ed03e-c9c0-433f-8733-4b1a4802c243" />
 ComKit is a community kitchen sharing platform that allows users to borrow and share kitchen items within their community. This platform helps reduce waste and promote resource sharing among neighbors.
 
+## Quickstart
+To reproduce application, it's recommended to use use docker 
+1. clone the repo, cd to cloned directory
+2. copy ui/.env.example to `ui/.env` and server-fastapi/.env.example to `server-fastapi/.env`, and edit as necessary.
+
+   Note: to use cloud ollama (https://ollama.com/):
+   - register https://ollama.com/
+   - settings -> keys -> add API key, copy to server-fastapi/.env as `OLLAMA_API_KEY=`
+   - specify cloud-only model in server-fastapi/.env (recommended model is `DEFAULT_OLLAMA_MODEL=qwen3.5:cloud`)
+   - specify `OLLAMA_API_URL=https://ollama.com/`
+4. docker compose up -d
+5. frontend will be served in http://localhost:8001/login by default (see docker-compose.yaml)
+
 ## API Documentation
 
 ### Interactive Documentation
